@@ -85,6 +85,10 @@
             const downloadBtn = document.getElementById('download-btn');
             const fileUpload = document.querySelector('.file-upload');
             
+            // API endpoints
+            const API_UPLOAD = '/api/upload';
+            const API_TRANSCRIBE = '/api/transcribe';
+            
             // Upload de arquivos via drag-and-drop
             ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
                 fileUpload.addEventListener(eventName, preventDefaults, false);
@@ -130,8 +134,8 @@
                 }
             }
             
-            // Simular a transcrição (em um ambiente real, isso seria feito pelo backend)
-            transcribeBtn.addEventListener('click', function() {
+            // Função para enviar arquivo e iniciar transcrição
+            transcribeBtn.addEventListener('click', async function() {
                 if (!fileInput.files.length) {
                     showStatus('Por favor, selecione um arquivo de áudio.', 'error');
                     return;
@@ -147,46 +151,72 @@
                 transcript.textContent = '';
                 status.className = 'status';
                 status.textContent = '';
+                showProgress(10); // Iniciar com 10%
                 
-                // Simular progresso (em produção, isso seria substituído por atualizações reais do backend)
-                simulateProgress();
-                
-                // Em um cenário real, aqui enviaria o arquivo para o backend através de uma API
-                // Usando AJAX, Fetch API ou FormData
-                setTimeout(() => {
-                    // Simular uma resposta de transcrição
+                try {
+                    // 1. Fazer upload do arquivo
+                    showStatus('Enviando arquivo...', 'info');
+                    const uploadData = new FormData();
+                    uploadData.append('file', file);
+                    
+                    const uploadResponse = await fetch(API_UPLOAD, {
+                        method: 'POST',
+                        body: uploadData
+                    });
+                    
+                    if (!uploadResponse.ok) {
+                        throw new Error('Falha no upload do arquivo');
+                    }
+                    
+                    const uploadResult = await uploadResponse.json();
+                    showProgress(30); // Arquivo enviado - 30%
+                    
+                    // 2. Iniciar a transcrição
+                    showStatus('Iniciando transcrição...', 'info');
+                    const transcribeResponse = await fetch(API_TRANSCRIBE, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            file_path: uploadResult.file_path,
+                            language: language,
+                            model: model,
+                            enhance: enhance
+                        })
+                    });
+                    
+                    if (!transcribeResponse.ok) {
+                        const errorData = await transcribeResponse.json();
+                        throw new Error(errorData.error || 'Falha na transcrição');
+                    }
+                    
+                    // 3. Processar resultado da transcrição
+                    showProgress(90); // Processamento quase completo
+                    const result = await transcribeResponse.json();
+                    
+                    // Exibir resultado
                     loading.style.display = 'none';
                     document.getElementById('progress-container').style.display = 'none';
                     
-                    // Exemplo de texto transcrito
-                    transcript.textContent = `Esta é uma simulação de transcrição para o arquivo "${file.name}" usando o modelo ${model}.
-                    
-Em um ambiente de produção, este texto seria o resultado real da transcrição do seu arquivo de áudio utilizando o modelo Whisper selecionado.
-
-O processo de transcrição enviaria o arquivo de áudio para o backend Python, que utilizaria as funções do módulo transcricao.py para processar o áudio com o modelo Whisper.
-
-Após a transcrição, o texto seria aprimorado com o spaCy se essa opção estiver selecionada, adicionando pontuação e formatação adequadas.`;
-                    
+                    transcript.textContent = result.transcript;
                     showStatus('Transcrição concluída com sucesso!', 'success');
                     downloadBtn.style.display = 'inline-block';
-                }, 3000);
+                    
+                } catch (error) {
+                    console.error('Erro:', error);
+                    loading.style.display = 'none';
+                    document.getElementById('progress-container').style.display = 'none';
+                    showStatus(`Erro: ${error.message}`, 'error');
+                }
             });
             
-            function simulateProgress() {
+            function showProgress(percentage) {
                 const progressContainer = document.getElementById('progress-container');
                 const progressBar = document.getElementById('progress-bar');
-                let width = 0;
                 progressContainer.style.display = 'block';
-                
-                const interval = setInterval(() => {
-                    if (width >= 100) {
-                        clearInterval(interval);
-                    } else {
-                        width += 5;
-                        progressBar.style.width = width + '%';
-                        progressBar.textContent = width + '%';
-                    }
-                }, 150);
+                progressBar.style.width = percentage + '%';
+                progressBar.textContent = percentage + '%';
             }
             
             function showStatus(message, type) {

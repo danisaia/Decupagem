@@ -18,11 +18,11 @@ def improve_transcript_advanced(text):
         
         # Verificar se o modelo está instalado
         try:
-            nlp = spacy.load("pt_core_news_sm")
+            nlp = spacy.load("pt_core_news_md")
         except OSError:
-            print("Modelo spaCy para português não encontrado. Instalando...")
-            subprocess.run([sys.executable, "-m", "spacy", "download", "pt_core_news_sm"], check=True)
-            nlp = spacy.load("pt_core_news_sm")
+            print("Modelo spaCy para português (médio) não encontrado. Instalando...")
+            subprocess.run([sys.executable, "-m", "spacy", "download", "pt_core_news_md"], check=True)
+            nlp = spacy.load("pt_core_news_md")
         
         # Pré-processamento com regras básicas antes de usar o spaCy
         # Isso ajuda a fornecer algumas dicas ao segmentador do spaCy

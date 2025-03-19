@@ -7,6 +7,13 @@ requests==2.31.0
 
 # NLP for transcript enhancement
 spacy==3.7.2
+# Para baixar o modelo manualmente: python -m spacy download pt_core_news_md
 
 # Optional: Alternative for FFmpeg if automatic download fails
 imageio-ffmpeg==0.4.9
+
+# Web API dependencies
+setuptools
+flask==2.3.3
+flask-cors==4.0.0
+werkzeug==2.3.7
