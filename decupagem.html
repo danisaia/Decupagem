@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decupagem de Áudio</title>
+    <link rel="stylesheet" href="estilos/decupagem.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Decupagem de Áudio</h1>
+        <p>Ferramenta para transcrição automática de arquivos de áudio para texto.</p>
+
+        <h2>1. Selecionar Arquivo de Áudio</h2>
+        <div class="file-upload">
+            <label for="audio-file">Clique aqui para selecionar um arquivo de áudio</label>
+            <input type="file" id="audio-file" accept=".mp3,.wav,.aiff,.aif,.flac">
+            <p>ou arraste e solte um arquivo aqui</p>
+            <div class="selected-file" id="file-name">Nenhum arquivo selecionado</div>
+        </div>
+
+        <h2>2. Opções de Transcrição</h2>
+        <div class="options">
+            <div class="option-group">
+                <label for="language">Idioma:</label>
+                <select id="language">
+                    <option value="pt-BR" selected>Português (Brasil)</option>
+                    <option value="en-US">Inglês (EUA)</option>
+                    <option value="es-ES">Espanhol</option>
+                    <option value="fr-FR">Francês</option>
+                    <option value="it-IT">Italiano</option>
+                    <option value="de-DE">Alemão</option>
+                </select>
+            </div>
+            <div class="option-group">
+                <label for="model">Modelo Whisper:</label>
+                <select id="model">
+                    <option value="tiny">Tiny (Rápido, menos preciso)</option>
+                    <option value="base">Base</option>
+                    <option value="small" selected>Small (Recomendado)</option>
+                    <option value="medium">Medium (Mais preciso, mais lento)</option>
+                    <option value="large">Large (Maior precisão, muito lento)</option>
+                </select>
+            </div>
+            <div class="option-group">
+                <label for="enhance">Aprimorar com spaCy:</label>
+                <input type="checkbox" id="enhance" checked>
+                <span>Melhora pontuação e formatação</span>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button id="transcribe-btn">Transcrever Áudio</button>
+            <button id="clear-btn" class="secondary">Limpar</button>
+        </div>
+
+        <div class="loading" id="loading">
+            <p>Processando transcrição... Esta operação pode levar alguns minutos.</p>
+            <div class="loading-spinner"></div>
+            <div class="progress-container" id="progress-container">
+                <div class="progress-bar" id="progress-bar">0%</div>
+            </div>
+        </div>
+
+        <div class="status" id="status"></div>
+
+        <h2>3. Resultado da Transcrição</h2>
+        <div class="transcript-container" id="transcript" contenteditable="true"></div>
+        <button id="download-btn" class="download-btn">Baixar Transcrição</button>
+    </div>
+
+    <footer>
+        <p>Decupagem - Ferramenta de Transcrição Automática</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('audio-file');
+            const fileName = document.getElementById('file-name');
+            const transcribeBtn = document.getElementById('transcribe-btn');
+            const clearBtn = document.getElementById('clear-btn');
+            const loading = document.getElementById('loading');
+            const status = document.getElementById('status');
+            const transcript = document.getElementById('transcript');
+            const downloadBtn = document.getElementById('download-btn');
+            const fileUpload = document.querySelector('.file-upload');
+            
+            // Upload de arquivos via drag-and-drop
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                fileUpload.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                fileUpload.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                fileUpload.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight() {
+                fileUpload.style.backgroundColor = '#e3f2fd';
+            }
+            
+            function unhighlight() {
+                fileUpload.style.backgroundColor = '#f8f9fa';
+            }
+            
+            fileUpload.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                fileInput.files = files;
+                updateFileName();
+            }
+            
+            fileInput.addEventListener('change', updateFileName);
+            
+            function updateFileName() {
+                if (fileInput.files.length > 0) {
+                    fileName.textContent = `Arquivo selecionado: ${fileInput.files[0].name}`;
+                } else {
+                    fileName.textContent = 'Nenhum arquivo selecionado';
+                }
+            }
+            
+            // Simular a transcrição (em um ambiente real, isso seria feito pelo backend)
+            transcribeBtn.addEventListener('click', function() {
+                if (!fileInput.files.length) {
+                    showStatus('Por favor, selecione um arquivo de áudio.', 'error');
+                    return;
+                }
+                
+                const file = fileInput.files[0];
+                const language = document.getElementById('language').value;
+                const model = document.getElementById('model').value;
+                const enhance = document.getElementById('enhance').checked;
+                
+                // Mostrar carregamento
+                loading.style.display = 'block';
+                transcript.textContent = '';
+                status.className = 'status';
+                status.textContent = '';
+                
+                // Simular progresso (em produção, isso seria substituído por atualizações reais do backend)
+                simulateProgress();
+                
+                // Em um cenário real, aqui enviaria o arquivo para o backend através de uma API
+                // Usando AJAX, Fetch API ou FormData
+                setTimeout(() => {
+                    // Simular uma resposta de transcrição
+                    loading.style.display = 'none';
+                    document.getElementById('progress-container').style.display = 'none';
+                    
+                    // Exemplo de texto transcrito
+                    transcript.textContent = `Esta é uma simulação de transcrição para o arquivo "${file.name}" usando o modelo ${model}.
+                    
+Em um ambiente de produção, este texto seria o resultado real da transcrição do seu arquivo de áudio utilizando o modelo Whisper selecionado.
+
+O processo de transcrição enviaria o arquivo de áudio para o backend Python, que utilizaria as funções do módulo transcricao.py para processar o áudio com o modelo Whisper.
+
+Após a transcrição, o texto seria aprimorado com o spaCy se essa opção estiver selecionada, adicionando pontuação e formatação adequadas.`;
+                    
+                    showStatus('Transcrição concluída com sucesso!', 'success');
+                    downloadBtn.style.display = 'inline-block';
+                }, 3000);
+            });
+            
+            function simulateProgress() {
+                const progressContainer = document.getElementById('progress-container');
+                const progressBar = document.getElementById('progress-bar');
+                let width = 0;
+                progressContainer.style.display = 'block';
+                
+                const interval = setInterval(() => {
+                    if (width >= 100) {
+                        clearInterval(interval);
+                    } else {
+                        width += 5;
+                        progressBar.style.width = width + '%';
+                        progressBar.textContent = width + '%';
+                    }
+                }, 150);
+            }
+            
+            function showStatus(message, type) {
+                status.textContent = message;
+                status.className = 'status ' + type;
+            }
+            
+            clearBtn.addEventListener('click', function() {
+                fileInput.value = '';
+                fileName.textContent = 'Nenhum arquivo selecionado';
+                transcript.textContent = '';
+                status.className = 'status';
+                status.textContent = '';
+                downloadBtn.style.display = 'none';
+            });
+            
+            downloadBtn.addEventListener('click', function() {
+                const text = transcript.textContent;
+                const blob = new Blob([text], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'transcricao.txt';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+        });
+    </script>
+</body>
+</html>
