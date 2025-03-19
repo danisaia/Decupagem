@@ -51,9 +51,11 @@ def upload_file():
 def transcribe():
     data = request.json
     file_path = data.get('file_path')
-    language = data.get('language', 'pt-BR')
-    model = data.get('model', 'small')
-    enhance = data.get('enhance', True)
+    
+    # Valores fixos para idioma e modelo
+    language = 'pt-BR'
+    model = 'small'
+    enhance = True
     
     if not file_path or not os.path.exists(file_path):
         return jsonify({'error': 'Arquivo não encontrado'}), 404
@@ -62,8 +64,8 @@ def transcribe():
         # Realizar a transcrição usando a função existente
         transcript = transcribe_with_whisper(file_path, language, model)
         
-        # Aplicar aprimoramento se solicitado
-        if enhance and transcript and not transcript.startswith("Erro:"):
+        # Aplicar aprimoramento
+        if transcript and not transcript.startswith("Erro:"):
             transcript = improve_transcript(transcript)
         
         # Limpar arquivo temporário

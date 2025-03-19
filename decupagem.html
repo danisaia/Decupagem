@@ -19,36 +19,6 @@
             <div class="selected-file" id="file-name">Nenhum arquivo selecionado</div>
         </div>
 
-        <h2>2. Opções de Transcrição</h2>
-        <div class="options">
-            <div class="option-group">
-                <label for="language">Idioma:</label>
-                <select id="language">
-                    <option value="pt-BR" selected>Português (Brasil)</option>
-                    <option value="en-US">Inglês (EUA)</option>
-                    <option value="es-ES">Espanhol</option>
-                    <option value="fr-FR">Francês</option>
-                    <option value="it-IT">Italiano</option>
-                    <option value="de-DE">Alemão</option>
-                </select>
-            </div>
-            <div class="option-group">
-                <label for="model">Modelo Whisper:</label>
-                <select id="model">
-                    <option value="tiny">Tiny (Rápido, menos preciso)</option>
-                    <option value="base">Base</option>
-                    <option value="small" selected>Small (Recomendado)</option>
-                    <option value="medium">Medium (Mais preciso, mais lento)</option>
-                    <option value="large">Large (Maior precisão, muito lento)</option>
-                </select>
-            </div>
-            <div class="option-group">
-                <label for="enhance">Aprimorar com spaCy:</label>
-                <input type="checkbox" id="enhance" checked>
-                <span>Melhora pontuação e formatação</span>
-            </div>
-        </div>
-
         <div class="actions">
             <button id="transcribe-btn">Transcrever Áudio</button>
             <button id="clear-btn" class="secondary">Limpar</button>
@@ -64,7 +34,7 @@
 
         <div class="status" id="status"></div>
 
-        <h2>3. Resultado da Transcrição</h2>
+        <h2>2. Resultado da Transcrição</h2>
         <div class="transcript-container" id="transcript" contenteditable="true"></div>
         <button id="download-btn" class="download-btn">Baixar Transcrição</button>
     </div>
@@ -142,9 +112,11 @@
                 }
                 
                 const file = fileInput.files[0];
-                const language = document.getElementById('language').value;
-                const model = document.getElementById('model').value;
-                const enhance = document.getElementById('enhance').checked;
+                
+                // Valores fixos para o idioma e modelo
+                const language = 'pt-BR';
+                const model = 'small';
+                const enhance = true;
                 
                 // Mostrar carregamento
                 loading.style.display = 'block';
@@ -179,10 +151,7 @@
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
-                            file_path: uploadResult.file_path,
-                            language: language,
-                            model: model,
-                            enhance: enhance
+                            file_path: uploadResult.file_path
                         })
                     });
                     

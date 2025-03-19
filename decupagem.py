@@ -19,44 +19,49 @@ def main():
     # Configurar o parser de argumentos
     parser = argparse.ArgumentParser(description='Transcrever áudio para texto.')
     parser.add_argument('--file', '-f', help='Caminho para o arquivo de áudio')
-    parser.add_argument('--language', '-l', default='pt-BR', help='Idioma do áudio (padrão: pt-BR)')
     parser.add_argument('--output', '-o', help='Arquivo para salvar a transcrição')
-    parser.add_argument('--enhance', '-e', action='store_true', default=True,
-                       help='Aplicar aprimoramento spaCy à transcrição (ativo por padrão)')
-    parser.add_argument('--whisper', '-w', action='store_true', help='Forçar uso do modelo Whisper para transcrição')
-    parser.add_argument('--model', '-m', choices=['tiny', 'base', 'small', 'medium', 'large'], default='small',
-                       help='Tamanho do modelo Whisper a ser usado (padrão: small)')
     parser.add_argument('--download-model', '-d', action='store_true', help='Baixar modelo Whisper especificado e sair')
     parser.add_argument('--force-download', '-fd', action='store_true', help='Forçar download do modelo mesmo se já existir')
     
+    # Manter os argumentos abaixo para compatibilidade, mas eles serão ignorados
+    parser.add_argument('--language', '-l', default='pt-BR', help=argparse.SUPPRESS)
+    parser.add_argument('--enhance', '-e', action='store_true', default=True, help=argparse.SUPPRESS)
+    parser.add_argument('--whisper', '-w', action='store_true', help=argparse.SUPPRESS)
+    parser.add_argument('--model', '-m', choices=['tiny', 'base', 'small', 'medium', 'large'], default='small',
+                       help=argparse.SUPPRESS)
+    
     args = parser.parse_args()
+    
+    # Valores fixos para idioma e modelo
+    language = 'pt-BR'
+    model = 'small'
+    enhance = True
     
     print("=== Transcrição de Áudio para Texto ===")
     
     # Se solicitado o download do modelo, baixar e sair
     if args.download_model:
-        if download_whisper_model(args.model, args.force_download):
-            print(f"Modelo '{args.model}' baixado com sucesso.")
+        if download_whisper_model(model, args.force_download):
+            print(f"Modelo '{model}' baixado com sucesso.")
         else:
-            print(f"Falha ao baixar modelo '{args.model}'.")
+            print(f"Falha ao baixar modelo '{model}'.")
         sys.exit(0)
     
     if not check_dependencies():
         sys.exit(1)
     
     # Verificar se o modelo small está disponível localmente quando iniciado sem argumentos
-    if len(sys.argv) == 1:  # Apenas o nome do script
-        model_path = os.path.join(MODELS_DIR, "small.pt")
-        if not os.path.exists(model_path):
-            print("\nO modelo small.pt não foi encontrado na pasta local do projeto.")
-            download_choice = input("Deseja baixar o modelo agora? (s/n): ")
-            if download_choice.lower() == 's':
-                if not download_whisper_model("small"):
-                    print("Falha ao baixar o modelo. O programa será encerrado.")
-                    sys.exit(1)
-            else:
-                print("O modelo é necessário para a transcrição. Encerrando o programa.")
-                sys.exit(0)
+    model_path = os.path.join(MODELS_DIR, "small.pt")
+    if not os.path.exists(model_path):
+        print("\nO modelo small.pt não foi encontrado na pasta local do projeto.")
+        download_choice = input("Deseja baixar o modelo agora? (s/n): ")
+        if download_choice.lower() == 's':
+            if not download_whisper_model("small"):
+                print("Falha ao baixar o modelo. O programa será encerrado.")
+                sys.exit(1)
+        else:
+            print("O modelo é necessário para a transcrição. Encerrando o programa.")
+            sys.exit(0)
     
     # Obter o arquivo de áudio
     audio_file = args.file
@@ -81,11 +86,11 @@ def main():
     print(f"Caminho absoluto do arquivo: {os.path.abspath(audio_file)}")
     print(f"Tamanho do arquivo: {os.path.getsize(audio_file)} bytes")
     
-    # Usar sempre o método Whisper
-    transcript = transcribe_with_whisper(audio_file, args.language, args.model)
+    # Usar sempre o método Whisper com valores fixos
+    transcript = transcribe_with_whisper(audio_file, language, model)
     
-    # Aplicar aprimoramento avançado se solicitado
-    if args.enhance and transcript and not transcript.startswith("Erro:"):
+    # Aplicar aprimoramento avançado
+    if transcript and not transcript.startswith("Erro:"):
         transcript = improve_transcript(transcript)
     
     # Finalizar cronômetro
