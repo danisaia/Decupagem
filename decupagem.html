@@ -35,6 +35,35 @@
         <div class="status" id="status"></div>
 
         <h2>2. Resultado da Transcrição</h2>
+        
+        <!-- Player de áudio com controles personalizados -->
+        <div class="audio-player-container" id="audio-player-container">
+            <audio id="audio-player" preload="metadata"></audio>
+            <div class="audio-controls">
+                <button id="play-btn" class="player-btn" disabled><i>▶</i> Play</button>
+                <button id="pause-btn" class="player-btn" disabled><i>❚❚</i> Pause</button>
+                <button id="stop-btn" class="player-btn" disabled><i>■</i> Stop</button>
+                <button id="restart-btn" class="player-btn" disabled><i>⟲</i> Início</button>
+                
+                <div class="speed-control">
+                    <span>Velocidade: </span>
+                    <select id="playback-speed" disabled>
+                        <option value="0.5">0.5x</option>
+                        <option value="0.75">0.75x</option>
+                        <option value="1" selected>1.0x</option>
+                        <option value="1.25">1.25x</option>
+                        <option value="1.5">1.5x</option>
+                        <option value="2">2.0x</option>
+                    </select>
+                </div>
+            </div>
+            <div class="progress-bar-container">
+                <div class="current-time">0:00</div>
+                <input type="range" class="timeline" id="timeline" min="0" max="100" step="1" value="0" disabled>
+                <div class="duration">0:00</div>
+            </div>
+        </div>
+        
         <div class="transcript-container" id="transcript" contenteditable="true"></div>
         <button id="download-btn" class="download-btn">Baixar Transcrição</button>
     </div>
@@ -54,6 +83,20 @@
             const transcript = document.getElementById('transcript');
             const downloadBtn = document.getElementById('download-btn');
             const fileUpload = document.querySelector('.file-upload');
+            
+            // Elementos do player de áudio
+            const audioPlayer = document.getElementById('audio-player');
+            const playBtn = document.getElementById('play-btn');
+            const pauseBtn = document.getElementById('pause-btn');
+            const stopBtn = document.getElementById('stop-btn');
+            const restartBtn = document.getElementById('restart-btn');
+            const playbackSpeed = document.getElementById('playback-speed');
+            const timeline = document.getElementById('timeline');
+            const currentTimeElement = document.querySelector('.current-time');
+            const durationElement = document.querySelector('.duration');
+            
+            // Variáveis para o player
+            let audioObjectURL = null;
             
             // API endpoints
             const API_UPLOAD = '/api/upload';
@@ -92,9 +135,13 @@
                 const files = dt.files;
                 fileInput.files = files;
                 updateFileName();
+                setupAudioPlayer();
             }
             
-            fileInput.addEventListener('change', updateFileName);
+            fileInput.addEventListener('change', function() {
+                updateFileName();
+                setupAudioPlayer();
+            });
             
             function updateFileName() {
                 if (fileInput.files.length > 0) {
@@ -102,6 +149,111 @@
                 } else {
                     fileName.textContent = 'Nenhum arquivo selecionado';
                 }
+            }
+            
+            // Configurar o player de áudio quando um arquivo for selecionado
+            function setupAudioPlayer() {
+                // Limpar URL anteriores para liberar memória
+                if (audioObjectURL) {
+                    URL.revokeObjectURL(audioObjectURL);
+                }
+                
+                if (fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+                    
+                    // Verificar se o arquivo é áudio
+                    if (file.type.startsWith('audio/')) {
+                        audioObjectURL = URL.createObjectURL(file);
+                        audioPlayer.src = audioObjectURL;
+                        
+                        // Habilitar controles quando o metadata estiver carregado
+                        audioPlayer.addEventListener('loadedmetadata', function() {
+                            enablePlayerControls();
+                            updateDuration();
+                        });
+                    }
+                } else {
+                    // Desabilitar controles se nenhum arquivo estiver selecionado
+                    disablePlayerControls();
+                    audioPlayer.removeAttribute('src');
+                }
+            }
+            
+            // Funções para controlar o player de áudio
+            playBtn.addEventListener('click', function() {
+                audioPlayer.play();
+            });
+            
+            pauseBtn.addEventListener('click', function() {
+                audioPlayer.pause();
+            });
+            
+            stopBtn.addEventListener('click', function() {
+                audioPlayer.pause();
+                audioPlayer.currentTime = 0;
+                updateTimeline();
+            });
+            
+            restartBtn.addEventListener('click', function() {
+                audioPlayer.currentTime = 0;
+                updateTimeline();
+            });
+            
+            playbackSpeed.addEventListener('change', function() {
+                audioPlayer.playbackRate = parseFloat(this.value);
+            });
+            
+            timeline.addEventListener('input', function() {
+                const seekTime = audioPlayer.duration * (this.value / 100);
+                audioPlayer.currentTime = seekTime;
+                updateCurrentTime();
+            });
+            
+            // Atualizar timeline durante a reprodução
+            audioPlayer.addEventListener('timeupdate', updateTimeline);
+            
+            function updateTimeline() {
+                if (!isNaN(audioPlayer.duration)) {
+                    const percentage = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+                    timeline.value = percentage;
+                    updateCurrentTime();
+                }
+            }
+            
+            function updateCurrentTime() {
+                currentTimeElement.textContent = formatTime(audioPlayer.currentTime);
+            }
+            
+            function updateDuration() {
+                durationElement.textContent = formatTime(audioPlayer.duration);
+                timeline.value = 0;
+            }
+            
+            function formatTime(seconds) {
+                const minutes = Math.floor(seconds / 60);
+                seconds = Math.floor(seconds % 60);
+                return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            }
+            
+            function enablePlayerControls() {
+                playBtn.disabled = false;
+                pauseBtn.disabled = false;
+                stopBtn.disabled = false;
+                restartBtn.disabled = false;
+                playbackSpeed.disabled = false;
+                timeline.disabled = false;
+            }
+            
+            function disablePlayerControls() {
+                playBtn.disabled = true;
+                pauseBtn.disabled = true;
+                stopBtn.disabled = true;
+                restartBtn.disabled = true;
+                playbackSpeed.disabled = true;
+                timeline.disabled = true;
+                currentTimeElement.textContent = '0:00';
+                durationElement.textContent = '0:00';
+                timeline.value = 0;
             }
             
             // Função para enviar arquivo e iniciar transcrição
@@ -200,6 +352,12 @@
                 status.className = 'status';
                 status.textContent = '';
                 downloadBtn.style.display = 'none';
+                disablePlayerControls();
+                if (audioObjectURL) {
+                    URL.revokeObjectURL(audioObjectURL);
+                    audioObjectURL = null;
+                }
+                audioPlayer.removeAttribute('src');
             });
             
             downloadBtn.addEventListener('click', function() {
