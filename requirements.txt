@@ -1,0 +1,12 @@
+# Core dependencies
+pydub==0.25.1
+SpeechRecognition==3.10.0
+openai-whisper==20231117
+numpy==1.24.3
+requests==2.31.0
+
+# NLP for transcript enhancement
+spacy==3.7.2
+
+# Optional: Alternative for FFmpeg if automatic download fails
+imageio-ffmpeg==0.4.9
