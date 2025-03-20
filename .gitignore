@@ -3,5 +3,6 @@ __pycache__/
 *.py[cod]
 *$py.class
 /audio_raw
+/uploads
 /src/models
 /src/ffmpeg_portable
