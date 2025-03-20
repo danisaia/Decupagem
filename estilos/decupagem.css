@@ -234,6 +234,16 @@ footer {
     background-color: #1c638b;
 }
 
+.time-adjust-btn.ultra-fine {
+    background-color: #1c638b;
+    font-size: 9px;
+    padding: 1px 2px;
+}
+
+.time-adjust-btn.ultra-fine:hover {
+    background-color: #164e6e;
+}
+
 .selection-time-display {
     font-weight: bold;
     color: #2980b9;

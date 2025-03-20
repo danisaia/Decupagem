@@ -214,6 +214,8 @@ function showRangePlayer() {
     startControls.innerHTML = `
         <button class="time-adjust-btn" data-action="start-back">-0.1s</button>
         <button class="time-adjust-btn fine" data-action="start-back-fine">-0.01s</button>
+        <button class="time-adjust-btn ultra-fine" data-action="start-back-ultra-fine">-0.001s</button>
+        <button class="time-adjust-btn ultra-fine" data-action="start-forward-ultra-fine">+0.001s</button>
         <button class="time-adjust-btn fine" data-action="start-forward-fine">+0.01s</button>
         <button class="time-adjust-btn" data-action="start-forward">+0.1s</button>
     `;
@@ -229,6 +231,8 @@ function showRangePlayer() {
     endControls.innerHTML = `
         <button class="time-adjust-btn" data-action="end-back">-0.1s</button>
         <button class="time-adjust-btn fine" data-action="end-back-fine">-0.01s</button>
+        <button class="time-adjust-btn ultra-fine" data-action="end-back-ultra-fine">-0.001s</button>
+        <button class="time-adjust-btn ultra-fine" data-action="end-forward-ultra-fine">+0.001s</button>
         <button class="time-adjust-btn fine" data-action="end-forward-fine">+0.01s</button>
         <button class="time-adjust-btn" data-action="end-forward">+0.1s</button>
     `;
@@ -244,26 +248,32 @@ function showRangePlayer() {
             const action = this.getAttribute('data-action');
             let timeAdjustment = 0.1; // Default adjustment
             
-            // Determine if this is a fine adjustment
-            if (action.includes('-fine')) {
-                timeAdjustment = 0.01; // Finer adjustment for precision
+            // Determine the precision level
+            if (action.includes('-ultra-fine')) {
+                timeAdjustment = 0.001; // Finest adjustment (milésimos)
+            } else if (action.includes('-fine')) {
+                timeAdjustment = 0.01; // Fine adjustment (centésimos)
             }
             
             switch(action) {
                 case 'start-back':
                 case 'start-back-fine':
+                case 'start-back-ultra-fine':
                     selectionStartTime = Math.max(0, selectionStartTime - timeAdjustment);
                     break;
                 case 'start-forward':
                 case 'start-forward-fine':
+                case 'start-forward-ultra-fine':
                     selectionStartTime = Math.min(selectionEndTime - timeAdjustment, selectionStartTime + timeAdjustment);
                     break;
                 case 'end-back':
                 case 'end-back-fine':
+                case 'end-back-ultra-fine':
                     selectionEndTime = Math.max(selectionStartTime + timeAdjustment, selectionEndTime - timeAdjustment);
                     break;
                 case 'end-forward':
                 case 'end-forward-fine':
+                case 'end-forward-ultra-fine':
                     selectionEndTime = Math.min(audioPlayer.duration, selectionEndTime + timeAdjustment);
                     break;
             }

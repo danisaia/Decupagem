@@ -2,14 +2,14 @@
  * Utilitários gerais para a aplicação
  */
 
-// Formatar tempo em segundos para formato MM:SS.DD (com centésimos)
+// Formatar tempo em segundos para formato MM:SS.DDD (com milésimos)
 function formatTime(timeInSeconds) {
-    if (isNaN(timeInSeconds)) return '0:00.00';
+    if (isNaN(timeInSeconds)) return '0:00.000';
     
     const minutes = Math.floor(timeInSeconds / 60);
     const seconds = Math.floor(timeInSeconds % 60);
-    const centiseconds = Math.floor((timeInSeconds % 1) * 100);
-    return `${minutes}:${seconds.toString().padStart(2, '0')}.${centiseconds.toString().padStart(2, '0')}`;
+    const milliseconds = Math.floor((timeInSeconds % 1) * 1000);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}.${milliseconds.toString().padStart(3, '0')}`;
 }
 
 // Prevenir comportamentos padrão em eventos
