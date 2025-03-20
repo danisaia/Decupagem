@@ -589,3 +589,38 @@ footer {
 #clear-selection-btn:hover {
     background-color: #c0392b;
 }
+
+/* Adicionar no final do arquivo */
+
+/* Estilo para o cabeçalho da seção com o botão de nova transcrição */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.section-header h2 {
+    margin: 0;
+}
+
+#new-transcription-btn {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+#new-transcription-btn:hover {
+    background-color: #2980b9;
+}
+
+/* Estilo para título da seção que permanece visível */
+.section-title-only {
+    margin-bottom: 10px;
+}

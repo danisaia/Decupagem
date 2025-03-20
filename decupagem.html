@@ -11,94 +11,103 @@
         <h1>Decupagem de Áudio</h1>
         <p>Ferramenta para transcrição automática de arquivos de áudio para texto.</p>
 
-        <h2>1. Selecionar Arquivo de Áudio</h2>
-        <div class="file-upload">
-            <label for="audio-file">Clique aqui para selecionar um arquivo de áudio</label>
-            <input type="file" id="audio-file" accept=".mp3,.wav,.aiff,.aif,.flac">
-            <p>ou arraste e solte um arquivo aqui</p>
-            <div class="selected-file" id="file-name">Nenhum arquivo selecionado</div>
-        </div>
-
-        <div class="actions">
-            <button id="transcribe-btn">Transcrever Áudio</button>
-            <button id="clear-btn" class="secondary">Limpar</button>
-        </div>
-
-        <div class="loading" id="loading">
-            <p>Processando transcrição... Esta operação pode levar alguns minutos.</p>
-            <div class="loading-spinner"></div>
-            <div class="progress-container" id="progress-container">
-                <div class="progress-bar" id="progress-bar">0%</div>
+        <!-- Section 1: File Selection -->
+        <div id="file-selection-section">
+            <h2>1. Selecionar Arquivo de Áudio</h2>
+            <div class="file-upload">
+                <label for="audio-file">Clique aqui para selecionar um arquivo de áudio</label>
+                <input type="file" id="audio-file" accept=".mp3,.wav,.aiff,.aif,.flac">
+                <p>ou arraste e solte um arquivo aqui</p>
+                <div class="selected-file" id="file-name">Nenhum arquivo selecionado</div>
             </div>
-        </div>
 
-        <div class="status" id="status"></div>
+            <div class="actions">
+                <button id="transcribe-btn">Transcrever Áudio</button>
+                <button id="clear-btn" class="secondary">Limpar</button>
+            </div>
 
-        <h2>2. Resultado da Transcrição</h2>
-        
-        <!-- Player de áudio com controles personalizados -->
-        <div class="audio-player-container" id="audio-player-container">
-            <audio id="audio-player" preload="metadata"></audio>
-            <div class="audio-controls">
-                <button id="play-pause-btn" class="player-btn" disabled><i class="play-icon">▶</i> <span class="button-text">Play</span></button>
-                <button id="stop-btn" class="player-btn" disabled><i>■</i> Stop</button>
-                <button id="restart-btn" class="player-btn" disabled><i>⟲</i> Início</button>
-                
-                <div class="speed-control">
-                    <span>Velocidade: </span>
-                    <select id="playback-speed" disabled>
-                        <option value="0.5">0.5x</option>
-                        <option value="0.75">0.75x</option>
-                        <option value="1" selected>1.0x</option>
-                        <option value="1.25">1.25x</option>
-                        <option value="1.5">1.5x</option>
-                        <option value="2">2.0x</option>
-                    </select>
+            <div class="loading" id="loading">
+                <p>Processando transcrição... Esta operação pode levar alguns minutos.</p>
+                <div class="loading-spinner"></div>
+                <div class="progress-container" id="progress-container">
+                    <div class="progress-bar" id="progress-bar">0%</div>
                 </div>
             </div>
-            <div class="progress-bar-container">
-                <div class="current-time">0:00</div>
-                <input type="range" class="timeline" id="timeline" min="0" max="100" step="1" value="0" disabled>
-                <div class="duration">0:00</div>
-            </div>
-        </div>
-        
-        <!-- Transcrição (agora não editável) -->
-        <div class="transcript-container" id="transcript"></div>
-        
-        <!-- Adicionar após a área de transcrição -->
-        <div class="range-selection-instructions" id="range-selection-container">
-            <div class="selection-buttons">
-                <button id="start-range-selection" class="instruction-btn">Selecionar Trecho</button>
-                <!-- The clear-selection-btn will be added here by JavaScript -->
-                <button id="clear-selection-btn" class="cancel-btn" style="display: none;">Limpar Seleção</button>
-            </div>
-            <div class="instructions-text" style="display: none;">
-                <p>Clique em uma palavra para definir o início do trecho</p>
-                <p>Depois, clique em outra palavra para definir o fim do trecho</p>
-                <button id="cancel-selection" class="cancel-btn">Cancelar</button>
-            </div>
+
+            <div class="status" id="status"></div>
         </div>
 
-        <!-- Botão flutuante para reproduzir trecho selecionado -->
-        <div class="selection-controls" id="selection-controls">
-            <button id="play-selection-btn">
-                <span class="play-icon">▶</span> Reproduzir seleção
-            </button>
-        </div>
-        
-        <div class="precision-control">
-            <label for="selection-precision">Precisão da seleção:</label>
-            <select id="selection-precision">
-                <option value="0">Exata (corte preciso)</option>
-                <option value="0.03">Alta (mínimo de contexto)</option>
-                <option value="0.05" selected>Média (recomendado)</option>
-                <option value="0.1">Baixa (mais contexto)</option>
-                <option value="0.2">Muito baixa (incluir pausas)</option>
-            </select>
-        </div>
+        <!-- Section 2: Transcription Results -->
+        <div id="transcription-section" style="display: none;">
+            <div class="section-header">
+                <h2>2. Resultado da Transcrição</h2>
+                <button id="new-transcription-btn" class="primary-btn">Nova Transcrição</button>
+            </div>
+            
+            <!-- Player de áudio com controles personalizados -->
+            <div class="audio-player-container" id="audio-player-container">
+                <audio id="audio-player" preload="metadata"></audio>
+                <div class="audio-controls">
+                    <button id="play-pause-btn" class="player-btn" disabled><i class="play-icon">▶</i> <span class="button-text">Play</span></button>
+                    <button id="stop-btn" class="player-btn" disabled><i>■</i> Stop</button>
+                    <button id="restart-btn" class="player-btn" disabled><i>⟲</i> Início</button>
+                    
+                    <div class="speed-control">
+                        <span>Velocidade: </span>
+                        <select id="playback-speed" disabled>
+                            <option value="0.5">0.5x</option>
+                            <option value="0.75">0.75x</option>
+                            <option value="1" selected>1.0x</option>
+                            <option value="1.25">1.25x</option>
+                            <option value="1.5">1.5x</option>
+                            <option value="2">2.0x</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="current-time">0:00</div>
+                    <input type="range" class="timeline" id="timeline" min="0" max="100" step="1" value="0" disabled>
+                    <div class="duration">0:00</div>
+                </div>
+            </div>
+            
+            <!-- Transcrição (agora não editável) -->
+            <div class="transcript-container" id="transcript"></div>
+            
+            <!-- Adicionar após a área de transcrição -->
+            <div class="range-selection-instructions" id="range-selection-container">
+                <div class="selection-buttons">
+                    <button id="start-range-selection" class="instruction-btn">Selecionar Trecho</button>
+                    <!-- The clear-selection-btn will be added here by JavaScript -->
+                    <button id="clear-selection-btn" class="cancel-btn" style="display: none;">Limpar Seleção</button>
+                </div>
+                <div class="instructions-text" style="display: none;">
+                    <p>Clique em uma palavra para definir o início do trecho</p>
+                    <p>Depois, clique em outra palavra para definir o fim do trecho</p>
+                    <button id="cancel-selection" class="cancel-btn">Cancelar</button>
+                </div>
+            </div>
 
-        <button id="download-btn" class="download-btn">Baixar Transcrição</button>
+            <!-- Botão flutuante para reproduzir trecho selecionado -->
+            <div class="selection-controls" id="selection-controls">
+                <button id="play-selection-btn">
+                    <span class="play-icon">▶</span> Reproduzir seleção
+                </button>
+            </div>
+            
+            <div class="precision-control">
+                <label for="selection-precision">Precisão da seleção:</label>
+                <select id="selection-precision">
+                    <option value="0">Exata (corte preciso)</option>
+                    <option value="0.03">Alta (mínimo de contexto)</option>
+                    <option value="0.05" selected>Média (recomendado)</option>
+                    <option value="0.1">Baixa (mais contexto)</option>
+                    <option value="0.2">Muito baixa (incluir pausas)</option>
+                </select>
+            </div>
+
+            <button id="download-btn" class="download-btn">Baixar Transcrição</button>
+        </div>
     </div>
 
     <footer>

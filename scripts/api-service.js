@@ -99,6 +99,10 @@ async function processTranscription(file) {
         showStatus('Transcrição concluída com sucesso!', 'success');
         document.getElementById('download-btn').style.display = 'inline-block';
         
+        // Mostrar seção de transcrição e esconder seção de arquivo
+        document.getElementById('transcription-section').style.display = 'block';
+        document.getElementById('file-selection-section').style.display = 'none';
+        
         return result;
         
     } catch (error) {

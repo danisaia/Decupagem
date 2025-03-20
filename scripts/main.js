@@ -84,9 +84,10 @@ function initializeApp() {
 }
 
 // Call the initialization function on DOMContentLoaded
-document.addEventListener('DOMContentLoaded', initializeApp);
+// Remove this duplicate event listener
+// document.addEventListener('DOMContentLoaded', initializeApp);
 
-// Configurar eventos dos botões principais
+// Enhanced setupButtonEvents function with improved New Transcription button handling
 function setupButtonEvents() {
     // Botão de transcrição
     transcribeBtn.addEventListener('click', async function() {
@@ -110,6 +111,13 @@ function setupButtonEvents() {
             
             // Inicializar a funcionalidade de seleção de intervalo após renderizar a transcrição
             initRangeSelection();
+            
+            // Mostrar a seção de transcrição e esconder a seção de seleção de arquivo
+            document.getElementById('transcription-section').style.display = 'block';
+            document.getElementById('file-selection-section').style.display = 'none';
+            
+            // Make sure the New Transcription button has an event listener
+            attachNewTranscriptionButtonListener();
         }
     });
     
@@ -152,4 +160,54 @@ function setupButtonEvents() {
             }
         });
     }
+    
+    // Make sure the New Transcription button has an event listener
+    attachNewTranscriptionButtonListener();
+}
+
+// New function to ensure the New Transcription button has an event listener
+function attachNewTranscriptionButtonListener() {
+    const newTranscriptionBtn = document.getElementById('new-transcription-btn');
+    if (newTranscriptionBtn) {
+        // Remove existing listeners to avoid duplicates
+        newTranscriptionBtn.removeEventListener('click', resetApplication);
+        // Add the event listener
+        newTranscriptionBtn.addEventListener('click', resetApplication);
+        console.log("Nova Transcrição button listener attached");
+    } else {
+        console.log("Nova Transcrição button not found in DOM");
+    }
+}
+
+// Document ready event to ensure all elements are available
+document.addEventListener('DOMContentLoaded', function() {
+    initializeApp();
+    attachNewTranscriptionButtonListener();
+});
+
+// Função para resetar a aplicação para o estado inicial
+function resetApplication() {
+    // Limpar dados
+    clearFile();
+    
+    // Esconder seção de transcrição
+    document.getElementById('transcription-section').style.display = 'none';
+    
+    // Mostrar seção de seleção de arquivo
+    document.getElementById('file-selection-section').style.display = 'block';
+    
+    // Limpar status
+    const status = document.getElementById('status');
+    status.className = 'status';
+    status.textContent = '';
+    
+    // Reset progress bar
+    const progressBar = document.getElementById('progress-bar');
+    if (progressBar) {
+        progressBar.style.width = '0%';
+        progressBar.textContent = '0%';
+    }
+    
+    document.getElementById('progress-container').style.display = 'none';
+    document.getElementById('loading').style.display = 'none';
 }
