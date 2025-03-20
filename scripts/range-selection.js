@@ -203,11 +203,79 @@ function showRangePlayer() {
     // Update the main player to show it's in selection mode
     document.getElementById('audio-player-container').classList.add('has-selection');
     
-    // Update selection info
+    // Update selection info with fine adjustment controls
     const selectionInfo = document.createElement('div');
     selectionInfo.id = 'selection-info';
     selectionInfo.className = 'selection-info';
-    selectionInfo.textContent = `Seleção: ${formatTime(selectionStartTime)} - ${formatTime(selectionEndTime)}`;
+    
+    // Create start time adjustment controls
+    const startControls = document.createElement('div');
+    startControls.className = 'time-adjust-controls start-controls';
+    startControls.innerHTML = `
+        <button class="time-adjust-btn" data-action="start-back">-0.1s</button>
+        <button class="time-adjust-btn fine" data-action="start-back-fine">-0.01s</button>
+        <button class="time-adjust-btn fine" data-action="start-forward-fine">+0.01s</button>
+        <button class="time-adjust-btn" data-action="start-forward">+0.1s</button>
+    `;
+
+    // Create the time display element
+    const timeDisplay = document.createElement('span');
+    timeDisplay.className = 'selection-time-display';
+    timeDisplay.textContent = `Seleção: ${formatTime(selectionStartTime)} - ${formatTime(selectionEndTime)}`;
+    
+    // Create end time adjustment controls
+    const endControls = document.createElement('div');
+    endControls.className = 'time-adjust-controls end-controls';
+    endControls.innerHTML = `
+        <button class="time-adjust-btn" data-action="end-back">-0.1s</button>
+        <button class="time-adjust-btn fine" data-action="end-back-fine">-0.01s</button>
+        <button class="time-adjust-btn fine" data-action="end-forward-fine">+0.01s</button>
+        <button class="time-adjust-btn" data-action="end-forward">+0.1s</button>
+    `;
+    
+    // Assemble all elements
+    selectionInfo.appendChild(startControls);
+    selectionInfo.appendChild(timeDisplay);
+    selectionInfo.appendChild(endControls);
+    
+    // Add event listeners for time adjustment buttons
+    selectionInfo.querySelectorAll('.time-adjust-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const action = this.getAttribute('data-action');
+            let timeAdjustment = 0.1; // Default adjustment
+            
+            // Determine if this is a fine adjustment
+            if (action.includes('-fine')) {
+                timeAdjustment = 0.01; // Finer adjustment for precision
+            }
+            
+            switch(action) {
+                case 'start-back':
+                case 'start-back-fine':
+                    selectionStartTime = Math.max(0, selectionStartTime - timeAdjustment);
+                    break;
+                case 'start-forward':
+                case 'start-forward-fine':
+                    selectionStartTime = Math.min(selectionEndTime - timeAdjustment, selectionStartTime + timeAdjustment);
+                    break;
+                case 'end-back':
+                case 'end-back-fine':
+                    selectionEndTime = Math.max(selectionStartTime + timeAdjustment, selectionEndTime - timeAdjustment);
+                    break;
+                case 'end-forward':
+                case 'end-forward-fine':
+                    selectionEndTime = Math.min(audioPlayer.duration, selectionEndTime + timeAdjustment);
+                    break;
+            }
+            
+            // Update the time display
+            timeDisplay.textContent = `Seleção: ${formatTime(selectionStartTime)} - ${formatTime(selectionEndTime)}`;
+            
+            // Update the active selection
+            activeSelection.startTime = selectionStartTime;
+            activeSelection.endTime = selectionEndTime;
+        });
+    });
     
     // Remove any existing selection info
     const existingInfo = document.getElementById('selection-info');
@@ -217,9 +285,6 @@ function showRangePlayer() {
     
     // Add the selection info to the audio player container
     document.getElementById('audio-player-container').appendChild(selectionInfo);
-    
-    // Make selection controls visible
-    // document.getElementById('selection-controls').style.display = 'block'; // Commented out to hide the floating button
     
     // Store active selection
     activeSelection = {

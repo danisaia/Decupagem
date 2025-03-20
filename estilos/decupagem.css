@@ -190,26 +190,54 @@ footer {
 
 /* Informação sobre a seleção atual */
 .selection-info {
-    background: rgba(52, 152, 219, 0.1);
-    padding: 4px 8px;
-    border-radius: 4px;
-    margin-top: 8px;
-    font-size: 14px;
-    color: #2980b9;
-    display: block;
-    text-align: center;
-    margin-left: auto;
-}
-
-.selection-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background-color: rgba(52, 152, 219, 0.1);
     color: #2980b9;
     padding: 6px 10px;
     border-radius: 4px;
-    font-size: 14px;
     margin-top: 10px;
     text-align: center;
     font-weight: bold;
+}
+
+.time-adjust-controls {
+    display: flex;
+    gap: 4px;
+    margin: 0 8px;
+}
+
+.time-adjust-btn {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    padding: 2px 5px;
+    font-size: 12px;
+    cursor: pointer;
+    min-width: auto;
+    transition: background-color 0.2s;
+}
+
+.time-adjust-btn.fine {
+    background-color: #2980b9;
+    font-size: 10px;
+    padding: 1px 3px;
+}
+
+.time-adjust-btn:hover {
+    background-color: #2980b9;
+}
+
+.time-adjust-btn.fine:hover {
+    background-color: #1c638b;
+}
+
+.selection-time-display {
+    font-weight: bold;
+    color: #2980b9;
+    margin: 0 8px;
 }
 
 .audio-controls {
