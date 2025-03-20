@@ -75,6 +75,20 @@ function clearRangeSelection() {
     if (clearBtn) {
         clearBtn.style.display = 'none';
     }
+    
+    // Esconder o botão "Adicionar Trecho"
+    const addToAssemblyBtn = document.getElementById('add-to-assembly-btn');
+    if (addToAssemblyBtn) {
+        addToAssemblyBtn.style.display = 'none';
+    }
+}
+
+// Mostrar o botão "Adicionar Trecho" quando uma seleção for concluída
+function showAddToAssemblyButton() {
+    const addToAssemblyBtn = document.getElementById('add-to-assembly-btn');
+    if (addToAssemblyBtn) {
+        addToAssemblyBtn.style.display = 'inline-block';
+    }
 }
 
 // Manipular clique em uma palavra durante a seleção de intervalo
@@ -302,6 +316,9 @@ function showRangePlayer() {
         startTime: selectionStartTime,
         endTime: selectionEndTime
     };
+    
+    // Mostrar o botão "Adicionar Trecho"
+    showAddToAssemblyButton();
     
     console.log("Intervalo selecionado:", startWord.textContent, "até", endWord.textContent);
 }

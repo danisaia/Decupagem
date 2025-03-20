@@ -79,6 +79,11 @@ function initializeApp() {
     // Any other initialization code
     initRangeSelection();
     
+    // Inicializar o módulo de montagem
+    if (typeof initAssembly === 'function') {
+        initAssembly();
+    }
+    
     console.log("Aplicação inicializada com sucesso!");
 }
 

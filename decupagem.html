@@ -78,7 +78,7 @@
             <div class="range-selection-instructions" id="range-selection-container">
                 <div class="selection-buttons">
                     <button id="start-range-selection" class="instruction-btn">Selecionar Trecho</button>
-                    <!-- The clear-selection-btn will be added here by JavaScript -->
+                    <button id="add-to-assembly-btn" class="primary-btn" style="display: none;">Adicionar Trecho</button>
                     <button id="clear-selection-btn" class="cancel-btn" style="display: none;">Limpar Seleção</button>
                 </div>
                 <div class="instructions-text" style="display: none;">
@@ -94,6 +94,19 @@
                     <span class="play-icon">▶</span> Reproduzir seleção
                 </button>
             </div>
+
+            <div id="assembly-section" style="display: none;">
+                <div class="section-header">
+                    <h2>3. Montagem</h2>
+                    <button id="clear-all-clips-btn" class="cancel-btn">Limpar Todos</button>
+                </div>
+                <div class="instructions">
+                    <p>Arraste os trechos para reorganizá-los na ordem desejada.</p>
+                </div>
+                <div id="assembly-list" class="assembly-list-container">
+                    <!-- Os trechos serão adicionados aqui dinamicamente -->
+                </div>
+            </div>
         </div>
     </div>
 
@@ -108,6 +121,7 @@
     <script src="scripts/api-service.js"></script>
     <script src="scripts/transcription.js"></script>
     <script src="scripts/range-selection.js"></script>
+    <script src="scripts/assembly.js"></script>
     <script src="scripts/main.js"></script>
 </body>
 </html>

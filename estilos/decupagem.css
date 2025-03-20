@@ -658,3 +658,119 @@ footer {
 .section-title-only {
     margin-bottom: 10px;
 }
+
+/* Adicionar estilos para o botão "Adicionar Trecho" e a seção "Montagem" */
+#add-to-assembly-btn {
+    background-color: #27ae60;
+    color: white;
+    margin-right: 10px;
+}
+
+#add-to-assembly-btn:hover {
+    background-color: #219653;
+}
+
+.assembly-list-container {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 20px;
+    background-color: #f9f9f9;
+}
+
+.assembly-clip {
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    cursor: move;
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.assembly-clip:hover {
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+}
+
+.assembly-clip.dragging {
+    opacity: 0.7;
+    transform: scale(1.01);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+}
+
+.clip-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.clip-time-info {
+    font-weight: bold;
+    color: #2980b9;
+}
+
+.clip-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.clip-text {
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #f5f9fc;
+    border-radius: 4px;
+    line-height: 1.6;
+}
+
+.clip-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+}
+
+.clip-remove-btn {
+    background-color: #e74c3c;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.clip-remove-btn:hover {
+    background-color: #c0392b;
+}
+
+.clip-time-adjustments {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.time-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.time-label {
+    font-size: 12px;
+    color: #666;
+}
+
+.time-adjust-buttons {
+    display: flex;
+    gap: 3px;
+}
+
+.empty-assembly-message {
+    padding: 20px;
+    text-align: center;
+    color: #777;
+    font-style: italic;
+}
