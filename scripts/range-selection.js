@@ -55,10 +55,25 @@ function clearRangeSelection() {
     startWord = null;
     endWord = null;
     
-    // Esconder player de intervalo
-    const rangePlayer = document.getElementById('range-player');
-    if (rangePlayer) {
-        rangePlayer.style.display = 'none';
+    // Reset the main player
+    document.getElementById('audio-player-container').classList.remove('has-selection');
+    
+    // Remove selection info
+    const selectionInfo = document.getElementById('selection-info');
+    if (selectionInfo) {
+        selectionInfo.remove();
+    }
+    
+    // Hide selection controls
+    document.getElementById('selection-controls').style.display = 'none';
+    
+    // Reset active selection
+    activeSelection = null;
+    
+    // Show clear selection button
+    const clearBtn = document.getElementById('clear-selection-btn');
+    if (clearBtn) {
+        clearBtn.style.display = 'none';
     }
 }
 
@@ -111,9 +126,11 @@ function handleWordClick(wordElement) {
         document.getElementById('start-range-selection').style.display = 'block';
         transcript.classList.remove('range-selection-active');
         
-        // Configurar seleção para o player de áudio
-        selectionStartTime = parseFloat(startWord.getAttribute('data-start')) + selectionPrecisionOffset; // Add small offset to avoid leading audio
-        selectionEndTime = parseFloat(endWord.getAttribute('data-end')) - selectionPrecisionOffset; // Subtract small offset to avoid trailing audio
+        // Configurar seleção para o player de áudio com offsets adaptativos
+        const { startOffset, endOffset } = calculateAdaptiveOffsets();
+
+        selectionStartTime = Math.max(0, parseFloat(startWord.getAttribute('data-start')) - startOffset);
+        selectionEndTime = Math.min(audioPlayer.duration, parseFloat(endWord.getAttribute('data-end')) + endOffset);
         
         // Armazenar seleção ativa
         activeSelection = {
@@ -123,6 +140,12 @@ function handleWordClick(wordElement) {
         };
         
         console.log("Intervalo selecionado:", startWord.textContent, "até", endWord.textContent);
+    }
+    
+    // Show the clear selection button
+    const clearSelectionBtn = document.getElementById('clear-selection-btn');
+    if (clearSelectionBtn) {
+        clearSelectionBtn.style.display = 'inline-block';
     }
 }
 
@@ -170,11 +193,42 @@ function showRangePlayer() {
     const startTime = parseFloat(startWord.getAttribute('data-start'));
     const endTime = parseFloat(endWord.getAttribute('data-end'));
     
-    // Atualizar informações de tempo
-    document.getElementById('range-time-info').textContent = `${formatTime(startTime)} - ${formatTime(endTime)}`;
+    // Calculate adaptive offsets
+    const { startOffset, endOffset } = calculateAdaptiveOffsets();
     
-    // Exibir o player
-    document.getElementById('range-player').style.display = 'block';
+    // Set the selection times with offsets
+    selectionStartTime = Math.max(0, parseFloat(startWord.getAttribute('data-start')) - startOffset);
+    selectionEndTime = Math.min(audioPlayer.duration, parseFloat(endWord.getAttribute('data-end')) + endOffset);
+    
+    // Update the main player to show it's in selection mode
+    document.getElementById('audio-player-container').classList.add('has-selection');
+    
+    // Update selection info
+    const selectionInfo = document.createElement('div');
+    selectionInfo.id = 'selection-info';
+    selectionInfo.className = 'selection-info';
+    selectionInfo.textContent = `Seleção: ${formatTime(selectionStartTime)} - ${formatTime(selectionEndTime)}`;
+    
+    // Remove any existing selection info
+    const existingInfo = document.getElementById('selection-info');
+    if (existingInfo) {
+        existingInfo.remove();
+    }
+    
+    // Add the selection info to the audio player container
+    document.getElementById('audio-player-container').appendChild(selectionInfo);
+    
+    // Make selection controls visible
+    // document.getElementById('selection-controls').style.display = 'block'; // Commented out to hide the floating button
+    
+    // Store active selection
+    activeSelection = {
+        text: getSelectedRangeText(),
+        startTime: selectionStartTime,
+        endTime: selectionEndTime
+    };
+    
+    console.log("Intervalo selecionado:", startWord.textContent, "até", endWord.textContent);
 }
 
 // Inicializar eventos de seleção de intervalo
@@ -218,7 +272,23 @@ function initRangeSelection() {
         }
     });
     
+    // Add event listener to the clear selection button that's already in the HTML
+    const clearSelectionBtn = document.getElementById('clear-selection-btn');
+    if (clearSelectionBtn) {
+        // Remove any existing listeners to avoid duplicates
+        clearSelectionBtn.removeEventListener('click', clearSelectionHandler);
+        // Add the event listener
+        clearSelectionBtn.addEventListener('click', clearSelectionHandler);
+    }
+    
+    // Initialize precision control
     initPrecisionControl();
+}
+
+// Add a handler function for the clear selection button
+function clearSelectionHandler() {
+    clearRangeSelection();
+    document.getElementById('clear-selection-btn').style.display = 'none';
 }
 
 // Add this function to your script
@@ -236,4 +306,56 @@ function initPrecisionControl() {
             }
         });
     }
+}
+
+// Configurar seleção para o player de áudio com offsets adaptativos
+function calculateAdaptiveOffsets() {
+    // Obter índices das palavras inicial e final
+    const startIndex = getWordIndex(startWord);
+    const endIndex = getWordIndex(endWord);
+    
+    // Calcular duração das palavras selecionadas
+    const startWordDuration = parseFloat(startWord.getAttribute('data-end')) - parseFloat(startWord.getAttribute('data-start'));
+    const endWordDuration = parseFloat(endWord.getAttribute('data-end')) - parseFloat(endWord.getAttribute('data-end'));
+    
+    // Obter o valor base do offset da seleção do usuário
+    const baseOffset = parseFloat(document.getElementById('selection-precision').value);
+    
+    // Ajustar offsets dinâmicos baseados no contexto
+    let startOffset = baseOffset;
+    let endOffset = baseOffset;
+    
+    // 1. Ajustar com base na duração da palavra (palavras mais curtas precisam de offsets menores)
+    if (startWordDuration < 0.2) {
+        startOffset = baseOffset * 0.5; // Reduzir offset para palavras curtas
+    }
+    
+    if (endWordDuration < 0.2) {
+        endOffset = baseOffset * 0.5;
+    }
+    
+    // 2. Considerar contexto: verificar se há palavras adjacentes
+    if (startIndex > 0) {
+        // Se há uma palavra antes, podemos ajustar para não cortar junções
+        const prevWord = wordTimestamps[startIndex - 1];
+        const gapBetweenWords = parseFloat(startWord.getAttribute('data-start')) - parseFloat(prevWord.element.getAttribute('data-end'));
+        
+        // Se as palavras estão muito próximas, reduzir o offset para não cortar a palavra anterior
+        if (gapBetweenWords < 0.1) {
+            startOffset = Math.min(startOffset, gapBetweenWords / 2);
+        }
+    }
+    
+    if (endIndex < wordTimestamps.length - 1) {
+        // Se há uma palavra depois, ajustar para não incluir parte dela
+        const nextWord = wordTimestamps[endIndex + 1];
+        const gapAfterWord = parseFloat(nextWord.element.getAttribute('data-start')) - parseFloat(endWord.getAttribute('data-end'));
+        
+        // Se as palavras estão próximas, reduzir o offset
+        if (gapAfterWord < 0.1) {
+            endOffset = Math.min(endOffset, gapAfterWord / 2);
+        }
+    }
+    
+    return { startOffset, endOffset };
 }

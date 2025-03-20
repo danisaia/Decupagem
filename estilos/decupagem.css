@@ -201,6 +201,17 @@ footer {
     margin-left: auto;
 }
 
+.selection-info {
+    background-color: rgba(52, 152, 219, 0.1);
+    color: #2980b9;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 14px;
+    margin-top: 10px;
+    text-align: center;
+    font-weight: bold;
+}
+
 .audio-controls {
     display: flex;
     flex-wrap: wrap;
@@ -521,6 +532,7 @@ footer {
     border-radius: 8px;
     padding: 15px;
     margin: 20px 0;
+    display: none !important;
 }
 
 .range-info {
@@ -543,4 +555,37 @@ footer {
 /* Adicionar ao CSS */
 .selection-controls, .range-player, .download-btn {
     display: none;
+}
+
+#clear-selection-btn {
+    margin-top: 10px;
+    background-color: #e74c3c;
+    color: white;
+}
+
+#clear-selection-btn:hover {
+    background-color: #c0392b;
+}
+
+/* Estilos para os botões de seleção */
+.selection-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+#clear-selection-btn {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+
+#clear-selection-btn:hover {
+    background-color: #c0392b;
 }

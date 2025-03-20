@@ -43,30 +43,38 @@ function initAudioPlayer() {
     // Configurar eventos para botões do player
     playPauseBtn.addEventListener('click', function() {
         if (audioPlayer.paused) {
-            if (activeSelection && !isSelectionPlaying) {
-                playSelection();
+            if (activeSelection) {
+                // If we have an active selection and the player is at a different position,
+                // move to the start of the selection
+                if (audioPlayer.currentTime < selectionStartTime || audioPlayer.currentTime > selectionEndTime) {
+                    audioPlayer.currentTime = selectionStartTime;
+                }
+                
+                audioPlayer.play();
+                this.innerHTML = '<i class="play-icon">❚❚</i> <span class="button-text">Pause</span>';
+                
+                // Make sure we're monitoring for selection boundaries
+                audioPlayer.addEventListener('timeupdate', checkSelectionBoundary);
             } else {
+                // Normal play
                 audioPlayer.play();
                 this.innerHTML = '<i class="play-icon">❚❚</i> <span class="button-text">Pause</span>';
             }
         } else {
             audioPlayer.pause();
-            if (isSelectionPlaying) {
-                isSelectionPlaying = false;
-            }
             this.innerHTML = '<i class="play-icon">▶</i> <span class="button-text">Play</span>';
         }
     });
     
     stopBtn.addEventListener('click', function() {
-        if (isSelectionPlaying) {
-            stopSelectionPlayback();
+        audioPlayer.pause();
+        if (activeSelection) {
             audioPlayer.currentTime = selectionStartTime;
         } else {
-            audioPlayer.pause();
             audioPlayer.currentTime = 0;
         }
         updateTimeline();
+        playPauseBtn.innerHTML = '<i class="play-icon">▶</i> <span class="button-text">Play</span>';
     });
     
     restartBtn.addEventListener('click', function() {
@@ -234,8 +242,10 @@ function playSelection() {
 }
 
 function checkSelectionBoundary() {
-    if (isSelectionPlaying && audioPlayer.currentTime >= selectionEndTime) {
-        stopSelectionPlayback();
+    if (activeSelection && audioPlayer.currentTime >= selectionEndTime) {
+        audioPlayer.pause();
+        playPauseBtn.innerHTML = '<i class="play-icon">▶</i> <span class="button-text">Play</span>';
+        audioPlayer.removeEventListener('timeupdate', checkSelectionBoundary);
     }
 }
 
@@ -323,3 +333,32 @@ function playSingleWord(wordElement) {
         wordElement.classList.remove('playing');
     }, (end - start + 0.2) * 1000);
 }
+
+function adjustSelectionBoundaries() {
+    if (!startWord || !endWord || !audioPlayer.duration) return;
+    
+    // Obter valores atuais
+    const currentStart = selectionStartTime;
+    const currentEnd = selectionEndTime;
+    
+    // Validar se o áudio soa completo, reproduzindo um trecho ligeiramente maior
+    const testStart = Math.max(0, currentStart - 0.1);
+    const testEnd = Math.min(audioPlayer.duration, currentEnd + 0.1);
+    
+    console.log(`Ajustando limites da seleção de [${formatTime(currentStart)}-${formatTime(currentEnd)}] para teste [${formatTime(testStart)}-${formatTime(testEnd)}]`);
+    
+    // Reproduzir o trecho estendido para verificar se soa natural
+    playAudioInterval(testStart, testEnd);
+    
+    // Atualizar controles de reprodução para refletir a opção de usar este novo trecho
+    document.getElementById('use-extended-selection').style.display = 'block';
+}
+
+// Adicionar botão para usar seleção estendida quando soar melhor
+document.getElementById('use-extended-selection').addEventListener('click', function() {
+    selectionStartTime = Math.max(0, selectionStartTime - 0.1);
+    selectionEndTime = Math.min(audioPlayer.duration, selectionEndTime + 0.1);
+    document.getElementById('play-selection-btn').innerHTML = 
+        `<span class="play-icon">▶</span> Reproduzir (${formatTime(selectionStartTime)} - ${formatTime(selectionEndTime)})`;
+    this.style.display = 'none';
+});

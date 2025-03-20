@@ -68,7 +68,11 @@
         
         <!-- Adicionar após a área de transcrição -->
         <div class="range-selection-instructions" id="range-selection-container">
-            <button id="start-range-selection" class="instruction-btn">Selecionar Trecho</button>
+            <div class="selection-buttons">
+                <button id="start-range-selection" class="instruction-btn">Selecionar Trecho</button>
+                <!-- The clear-selection-btn will be added here by JavaScript -->
+                <button id="clear-selection-btn" class="cancel-btn" style="display: none;">Limpar Seleção</button>
+            </div>
             <div class="instructions-text" style="display: none;">
                 <p>Clique em uma palavra para definir o início do trecho</p>
                 <p>Depois, clique em outra palavra para definir o fim do trecho</p>
@@ -86,9 +90,11 @@
         <div class="precision-control">
             <label for="selection-precision">Precisão da seleção:</label>
             <select id="selection-precision">
-                <option value="0">Exata</option>
+                <option value="0">Exata (corte preciso)</option>
+                <option value="0.03">Alta (mínimo de contexto)</option>
                 <option value="0.05" selected>Média (recomendado)</option>
-                <option value="0.1">Baixa</option>
+                <option value="0.1">Baixa (mais contexto)</option>
+                <option value="0.2">Muito baixa (incluir pausas)</option>
             </select>
         </div>
 
