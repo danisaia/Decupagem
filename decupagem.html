@@ -64,7 +64,26 @@
             </div>
         </div>
         
-        <div class="transcript-container" id="transcript" contenteditable="true"></div>
+        <!-- Transcrição (agora não editável) -->
+        <div class="transcript-container" id="transcript"></div>
+        
+        <!-- Adicionar após a área de transcrição -->
+        <div class="range-selection-instructions" id="range-selection-container">
+            <button id="start-range-selection" class="instruction-btn">Selecionar Trecho</button>
+            <div class="instructions-text" style="display: none;">
+                <p>Clique em uma palavra para definir o início do trecho</p>
+                <p>Depois, clique em outra palavra para definir o fim do trecho</p>
+                <button id="cancel-selection" class="cancel-btn">Cancelar</button>
+            </div>
+        </div>
+
+        <!-- Botão flutuante para reproduzir trecho selecionado -->
+        <div class="selection-controls" id="selection-controls">
+            <button id="play-selection-btn">
+                <span class="play-icon">▶</span> Reproduzir seleção
+            </button>
+        </div>
+        
         <button id="download-btn" class="download-btn">Baixar Transcrição</button>
     </div>
 
@@ -72,307 +91,13 @@
         <p>Decupagem - Ferramenta de Transcrição Automática</p>
     </footer>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const fileInput = document.getElementById('audio-file');
-            const fileName = document.getElementById('file-name');
-            const transcribeBtn = document.getElementById('transcribe-btn');
-            const clearBtn = document.getElementById('clear-btn');
-            const loading = document.getElementById('loading');
-            const status = document.getElementById('status');
-            const transcript = document.getElementById('transcript');
-            const downloadBtn = document.getElementById('download-btn');
-            const fileUpload = document.querySelector('.file-upload');
-            
-            // Elementos do player de áudio
-            const audioPlayer = document.getElementById('audio-player');
-            const playBtn = document.getElementById('play-btn');
-            const pauseBtn = document.getElementById('pause-btn');
-            const stopBtn = document.getElementById('stop-btn');
-            const restartBtn = document.getElementById('restart-btn');
-            const playbackSpeed = document.getElementById('playback-speed');
-            const timeline = document.getElementById('timeline');
-            const currentTimeElement = document.querySelector('.current-time');
-            const durationElement = document.querySelector('.duration');
-            
-            // Variáveis para o player
-            let audioObjectURL = null;
-            
-            // API endpoints
-            const API_UPLOAD = '/api/upload';
-            const API_TRANSCRIBE = '/api/transcribe';
-            
-            // Upload de arquivos via drag-and-drop
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                fileUpload.addEventListener(eventName, preventDefaults, false);
-            });
-            
-            function preventDefaults(e) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-            
-            ['dragenter', 'dragover'].forEach(eventName => {
-                fileUpload.addEventListener(eventName, highlight, false);
-            });
-            
-            ['dragleave', 'drop'].forEach(eventName => {
-                fileUpload.addEventListener(eventName, unhighlight, false);
-            });
-            
-            function highlight() {
-                fileUpload.style.backgroundColor = '#e3f2fd';
-            }
-            
-            function unhighlight() {
-                fileUpload.style.backgroundColor = '#f8f9fa';
-            }
-            
-            fileUpload.addEventListener('drop', handleDrop, false);
-            
-            function handleDrop(e) {
-                const dt = e.dataTransfer;
-                const files = dt.files;
-                fileInput.files = files;
-                updateFileName();
-                setupAudioPlayer();
-            }
-            
-            fileInput.addEventListener('change', function() {
-                updateFileName();
-                setupAudioPlayer();
-            });
-            
-            function updateFileName() {
-                if (fileInput.files.length > 0) {
-                    fileName.textContent = `Arquivo selecionado: ${fileInput.files[0].name}`;
-                } else {
-                    fileName.textContent = 'Nenhum arquivo selecionado';
-                }
-            }
-            
-            // Configurar o player de áudio quando um arquivo for selecionado
-            function setupAudioPlayer() {
-                // Limpar URL anteriores para liberar memória
-                if (audioObjectURL) {
-                    URL.revokeObjectURL(audioObjectURL);
-                }
-                
-                if (fileInput.files.length > 0) {
-                    const file = fileInput.files[0];
-                    
-                    // Verificar se o arquivo é áudio
-                    if (file.type.startsWith('audio/')) {
-                        audioObjectURL = URL.createObjectURL(file);
-                        audioPlayer.src = audioObjectURL;
-                        
-                        // Habilitar controles quando o metadata estiver carregado
-                        audioPlayer.addEventListener('loadedmetadata', function() {
-                            enablePlayerControls();
-                            updateDuration();
-                        });
-                    }
-                } else {
-                    // Desabilitar controles se nenhum arquivo estiver selecionado
-                    disablePlayerControls();
-                    audioPlayer.removeAttribute('src');
-                }
-            }
-            
-            // Funções para controlar o player de áudio
-            playBtn.addEventListener('click', function() {
-                audioPlayer.play();
-            });
-            
-            pauseBtn.addEventListener('click', function() {
-                audioPlayer.pause();
-            });
-            
-            stopBtn.addEventListener('click', function() {
-                audioPlayer.pause();
-                audioPlayer.currentTime = 0;
-                updateTimeline();
-            });
-            
-            restartBtn.addEventListener('click', function() {
-                audioPlayer.currentTime = 0;
-                updateTimeline();
-            });
-            
-            playbackSpeed.addEventListener('change', function() {
-                audioPlayer.playbackRate = parseFloat(this.value);
-            });
-            
-            timeline.addEventListener('input', function() {
-                const seekTime = audioPlayer.duration * (this.value / 100);
-                audioPlayer.currentTime = seekTime;
-                updateCurrentTime();
-            });
-            
-            // Atualizar timeline durante a reprodução
-            audioPlayer.addEventListener('timeupdate', updateTimeline);
-            
-            function updateTimeline() {
-                if (!isNaN(audioPlayer.duration)) {
-                    const percentage = (audioPlayer.currentTime / audioPlayer.duration) * 100;
-                    timeline.value = percentage;
-                    updateCurrentTime();
-                }
-            }
-            
-            function updateCurrentTime() {
-                currentTimeElement.textContent = formatTime(audioPlayer.currentTime);
-            }
-            
-            function updateDuration() {
-                durationElement.textContent = formatTime(audioPlayer.duration);
-                timeline.value = 0;
-            }
-            
-            function formatTime(seconds) {
-                const minutes = Math.floor(seconds / 60);
-                seconds = Math.floor(seconds % 60);
-                return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-            }
-            
-            function enablePlayerControls() {
-                playBtn.disabled = false;
-                pauseBtn.disabled = false;
-                stopBtn.disabled = false;
-                restartBtn.disabled = false;
-                playbackSpeed.disabled = false;
-                timeline.disabled = false;
-            }
-            
-            function disablePlayerControls() {
-                playBtn.disabled = true;
-                pauseBtn.disabled = true;
-                stopBtn.disabled = true;
-                restartBtn.disabled = true;
-                playbackSpeed.disabled = true;
-                timeline.disabled = true;
-                currentTimeElement.textContent = '0:00';
-                durationElement.textContent = '0:00';
-                timeline.value = 0;
-            }
-            
-            // Função para enviar arquivo e iniciar transcrição
-            transcribeBtn.addEventListener('click', async function() {
-                if (!fileInput.files.length) {
-                    showStatus('Por favor, selecione um arquivo de áudio.', 'error');
-                    return;
-                }
-                
-                const file = fileInput.files[0];
-                
-                // Valores fixos para o idioma e modelo
-                const language = 'pt-BR';
-                const model = 'small';
-                const enhance = true;
-                
-                // Mostrar carregamento
-                loading.style.display = 'block';
-                transcript.textContent = '';
-                status.className = 'status';
-                status.textContent = '';
-                showProgress(10); // Iniciar com 10%
-                
-                try {
-                    // 1. Fazer upload do arquivo
-                    showStatus('Enviando arquivo...', 'info');
-                    const uploadData = new FormData();
-                    uploadData.append('file', file);
-                    
-                    const uploadResponse = await fetch(API_UPLOAD, {
-                        method: 'POST',
-                        body: uploadData
-                    });
-                    
-                    if (!uploadResponse.ok) {
-                        throw new Error('Falha no upload do arquivo');
-                    }
-                    
-                    const uploadResult = await uploadResponse.json();
-                    showProgress(30); // Arquivo enviado - 30%
-                    
-                    // 2. Iniciar a transcrição
-                    showStatus('Iniciando transcrição...', 'info');
-                    const transcribeResponse = await fetch(API_TRANSCRIBE, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            file_path: uploadResult.file_path
-                        })
-                    });
-                    
-                    if (!transcribeResponse.ok) {
-                        const errorData = await transcribeResponse.json();
-                        throw new Error(errorData.error || 'Falha na transcrição');
-                    }
-                    
-                    // 3. Processar resultado da transcrição
-                    showProgress(90); // Processamento quase completo
-                    const result = await transcribeResponse.json();
-                    
-                    // Exibir resultado
-                    loading.style.display = 'none';
-                    document.getElementById('progress-container').style.display = 'none';
-                    
-                    transcript.textContent = result.transcript;
-                    showStatus('Transcrição concluída com sucesso!', 'success');
-                    downloadBtn.style.display = 'inline-block';
-                    
-                } catch (error) {
-                    console.error('Erro:', error);
-                    loading.style.display = 'none';
-                    document.getElementById('progress-container').style.display = 'none';
-                    showStatus(`Erro: ${error.message}`, 'error');
-                }
-            });
-            
-            function showProgress(percentage) {
-                const progressContainer = document.getElementById('progress-container');
-                const progressBar = document.getElementById('progress-bar');
-                progressContainer.style.display = 'block';
-                progressBar.style.width = percentage + '%';
-                progressBar.textContent = percentage + '%';
-            }
-            
-            function showStatus(message, type) {
-                status.textContent = message;
-                status.className = 'status ' + type;
-            }
-            
-            clearBtn.addEventListener('click', function() {
-                fileInput.value = '';
-                fileName.textContent = 'Nenhum arquivo selecionado';
-                transcript.textContent = '';
-                status.className = 'status';
-                status.textContent = '';
-                downloadBtn.style.display = 'none';
-                disablePlayerControls();
-                if (audioObjectURL) {
-                    URL.revokeObjectURL(audioObjectURL);
-                    audioObjectURL = null;
-                }
-                audioPlayer.removeAttribute('src');
-            });
-            
-            downloadBtn.addEventListener('click', function() {
-                const text = transcript.textContent;
-                const blob = new Blob([text], { type: 'text/plain' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'transcricao.txt';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-            });
-        });
-    </script>
+    <!-- Scripts modulares - com caminhos corretos -->
+    <script src="scripts/utils.js"></script>
+    <script src="scripts/audio-player.js"></script>
+    <script src="scripts/file-handler.js"></script>
+    <script src="scripts/api-service.js"></script>
+    <script src="scripts/transcription.js"></script>
+    <script src="scripts/range-selection.js"></script>
+    <script src="scripts/main.js"></script>
 </body>
 </html>

@@ -144,19 +144,64 @@ def transcribe_with_whisper(audio_file_path, language="pt", model_size="small"):
             
             print(f"Usando arquivo WAV temporário: {audio_file_path}")
         
-        # Transcrever com maior precisão
+        # Transcrever com maior precisão e solicitar timestamps por palavra
         try:
-            result = model.transcribe(
-                audio_file_path,
-                language=whisper_language,
-                fp16=False,          # Definir como False para compatibilidade com CPU
-                verbose=True,        # Mais informações de debug
-                beam_size=5,         # Aumentar beam search para maior precisão
-                best_of=5,           # Selecionar entre mais candidatos
-                temperature=[0.0, 0.2, 0.4, 0.6, 0.8, 1.0]  # Usar várias temperaturas para melhores resultados
-            )
+            # Configurar opções para garantir que teremos timestamps de palavras
+            # As versões mais recentes do Whisper suportam word_timestamps
+            try:
+                result = model.transcribe(
+                    audio_file_path,
+                    language=whisper_language,
+                    fp16=False,          # Definir como False para compatibilidade com CPU
+                    verbose=True,        # Mais informações de debug
+                    beam_size=5,         # Aumentar beam search para maior precisão
+                    word_timestamps=True,  # Obter timestamps para cada palavra
+                    without_timestamps=False,  # Assegurar que os timestamps serão gerados
+                    temperature=[0.0, 0.2, 0.4, 0.6, 0.8, 1.0]  # Usar várias temperaturas para melhores resultados
+                )
+            except TypeError:
+                # Se a versão não suporta word_timestamps, usar a API padrão
+                print("Esta versão do Whisper não suporta word_timestamps, usando método padrão")
+                result = model.transcribe(
+                    audio_file_path,
+                    language=whisper_language,
+                    fp16=False,
+                    verbose=True,
+                    temperature=[0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
+                )
             
-            return result["text"].strip()
+            # Estruturar a saída para incluir segmentos com timestamps
+            structured_transcription = {
+                "text": result["text"].strip(),
+                "segments": []
+            }
+            
+            # Processar os segmentos
+            for segment in result["segments"]:
+                segment_data = {
+                    "id": segment["id"],
+                    "start": segment["start"],
+                    "end": segment["end"],
+                    "text": segment["text"].strip()
+                }
+                
+                # Adicionar palavras com timestamps se disponíveis
+                if "words" in segment and segment["words"]:
+                    words = []
+                    for word_data in segment["words"]:
+                        if isinstance(word_data, dict) and "word" in word_data:
+                            words.append({
+                                "word": word_data["word"],
+                                "start": word_data["start"],
+                                "end": word_data["end"],
+                            })
+                    
+                    segment_data["words"] = words
+                
+                structured_transcription["segments"].append(segment_data)
+                
+            print(f"Transcrição concluída com {len(structured_transcription['segments'])} segmentos")
+            return structured_transcription
             
         finally:
             # Limpar arquivo temporário se foi criado
@@ -171,9 +216,33 @@ def transcribe_with_whisper(audio_file_path, language="pt", model_size="small"):
             print("Tentando método alternativo de transcrição...")
             # Carregar o áudio usando o método interno do whisper
             audio = whisper.load_audio(audio_file_path)
-            # Transcrever usando método mais direto
-            result = whisper.transcribe.transcribe(model, audio, language=whisper_language)
-            return result["text"].strip()
+            # Transcrever usando método mais direto, ainda solicitando timestamps
+            result = whisper.transcribe.transcribe(
+                model, 
+                audio, 
+                language=whisper_language,
+                word_timestamps=True,
+                without_timestamps=False
+            )
+            
+            # Estruturar a saída para incluir segmentos com timestamps
+            structured_transcription = {
+                "text": result["text"].strip(),
+                "segments": []
+            }
+            
+            # Processar os segmentos
+            for segment in result["segments"]:
+                structured_transcription["segments"].append({
+                    "id": segment["id"],
+                    "start": segment["start"],
+                    "end": segment["end"],
+                    "text": segment["text"].strip(),
+                    "words": segment.get("words", [])
+                })
+                
+            return structured_transcription
+            
         except Exception as e2:
             print(f"Erro no método alternativo: {e2}")
             raise

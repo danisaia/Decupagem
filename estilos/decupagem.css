@@ -101,6 +101,10 @@ button.secondary:hover {
     max-height: 500px;
     overflow-y: auto;
     white-space: pre-wrap;
+    user-select: text;
+    cursor: text;
+    line-height: 1.8;
+    position: relative;
 }
 .loading {
     text-align: center;
@@ -171,6 +175,30 @@ footer {
     border-radius: 8px;
     padding: 15px;
     margin-bottom: 20px;
+    transition: background-color 0.3s ease;
+}
+
+.audio-player-container.has-selection {
+    background-color: #e3f2fd;
+    border-color: #3498db;
+}
+
+.audio-player-container.selection-playing {
+    background-color: #d4edda;
+    border-color: #28a745;
+}
+
+/* Informação sobre a seleção atual */
+.selection-info {
+    background: rgba(52, 152, 219, 0.1);
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin-top: 8px;
+    font-size: 14px;
+    color: #2980b9;
+    display: block;
+    text-align: center;
+    margin-left: auto;
 }
 
 .audio-controls {
@@ -253,4 +281,266 @@ footer {
     font-family: monospace;
     font-size: 14px;
     min-width: 40px;
+}
+
+/* Estilos para a seleção de texto na transcrição */
+.transcript-container::selection,
+.transcript-container *::selection {
+    background-color: rgba(52, 152, 219, 0.3);
+}
+
+/* Botão flutuante para reproduzir trecho selecionado */
+.selection-controls {
+    position: absolute;
+    display: none;
+    background-color: #3498db;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    white-space: nowrap;
+}
+
+.selection-controls button {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 4px 8px;
+    margin: 0;
+    font-size: 14px;
+    font-weight: normal;
+    min-width: auto;
+}
+
+.selection-controls button:hover {
+    text-decoration: underline;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.selection-controls button.playing {
+    font-weight: bold;
+}
+
+.play-icon {
+    display: inline-block;
+    margin-right: 5px;
+    font-size: 10px;
+}
+
+/* Estilos para elementos com timestamps */
+.transcript-segment {
+    display: inline;
+}
+
+.transcript-word {
+    display: inline;
+    padding: 1px 1px;
+    margin: 0 1px;
+    border-radius: 3px;
+    transition: all 0.2s ease;
+    position: relative;
+    cursor: pointer;
+}
+
+.transcript-word:hover {
+    background-color: rgba(52, 152, 219, 0.2);
+}
+
+.transcript-word.highlight {
+    background-color: rgba(52, 152, 219, 0.3);
+    font-weight: 500;
+}
+
+.transcript-word:active {
+    background-color: rgba(52, 152, 219, 0.4);
+}
+
+/* Melhorar visualização da seleção */
+.transcript-container::selection,
+.transcript-container *::selection {
+    background-color: rgba(52, 152, 219, 0.3);
+    color: #000;
+}
+
+/* Estilo para melhorar a visualização da seleção de texto */
+::selection {
+    background-color: rgba(52, 152, 219, 0.3);
+}
+
+/* Popup de seleção de texto */
+.selection-popup {
+    background-color: #3498db;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    animation: fadeIn 0.2s ease;
+}
+
+.selection-popup button {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 6px 10px;
+    margin: 0;
+    font-size: 14px;
+    font-weight: normal;
+    min-width: auto;
+}
+
+.selection-popup button:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+}
+
+@keyframes fadeIn {
+    0% { opacity: 0; transform: translateY(10px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Melhorar visualização de palavras clicáveis */
+.transcript-word {
+    display: inline-block;
+    padding: 2px 2px;
+    margin: 0 1px;
+    border-radius: 3px;
+    transition: all 0.2s ease;
+    position: relative;
+    cursor: pointer;
+    border-bottom: 1px dotted transparent;
+}
+
+.transcript-word:hover {
+    background-color: rgba(52, 152, 219, 0.2);
+    border-bottom-color: #3498db;
+}
+
+.transcript-word.playing {
+    background-color: rgba(46, 204, 113, 0.2);
+    border-bottom: 1px solid #2ecc71;
+    font-weight: bold;
+}
+
+/* Estilos para seleção de intervalo */
+.range-selection-instructions {
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.instruction-btn {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+
+.instruction-btn:hover {
+    background-color: #2980b9;
+}
+
+.instructions-text {
+    margin-top: 10px;
+    color: #555;
+}
+
+.instructions-text p {
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+.cancel-btn {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+    margin-top: 10px;
+}
+
+.cancel-btn:hover {
+    background-color: #c0392b;
+}
+
+/* Estilos para transcrição durante seleção de intervalo */
+.transcript-container.range-selection-active .transcript-word {
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.transcript-container.range-selection-active .transcript-word:hover {
+    background-color: rgba(52, 152, 219, 0.3);
+}
+
+/* Estilos para palavras selecionadas */
+.transcript-word.word-start {
+    background-color: rgba(46, 204, 113, 0.3); /* Verde */
+    border-radius: 3px 0 0 3px;
+    padding: 2px 4px;
+    font-weight: bold;
+}
+
+.transcript-word.word-end {
+    background-color: rgba(46, 204, 113, 0.3); /* Verde */
+    border-radius: 0 3px 3px 0;
+    padding: 2px 4px;
+    font-weight: bold;
+}
+
+.transcript-word.word-between {
+    background-color: rgba(46, 204, 113, 0.15); /* Verde mais claro */
+    padding: 2px 0;
+}
+
+/* Estilo para palavra atualmente em reprodução */
+.transcript-word.playing {
+    background-color: rgba(241, 196, 15, 0.3); /* Amarelo */
+    font-weight: bold;
+    border-radius: 3px;
+    padding: 2px 4px;
+}
+
+/* Player de intervalo */
+.range-player {
+    background-color: #f1f9ff;
+    border: 1px solid #3498db;
+    border-radius: 8px;
+    padding: 15px;
+    margin: 20px 0;
+}
+
+.range-info {
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: #2980b9;
+}
+
+.range-controls {
+    display: flex;
+    gap: 10px;
+}
+
+/* Melhorar a legibilidade do texto */
+.transcript-text {
+    line-height: 2;
+    padding: 5px;
+}
+
+/* Adicionar ao CSS */
+.selection-controls, .range-player, .download-btn {
+    display: none;
 }
