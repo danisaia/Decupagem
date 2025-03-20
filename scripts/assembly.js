@@ -90,6 +90,35 @@ function renderAssemblyClips() {
         assemblyList.appendChild(clipElement);
     });
     
+    // Adicionar o player "Reproduzir Tudo"
+    const playAllPlayer = document.createElement('div');
+    playAllPlayer.className = 'play-all-player';
+    playAllPlayer.innerHTML = `
+        <h3>Reproduzir Todos os Trechos</h3>
+        <div class="play-all-controls">
+            <button id="play-all-btn" class="player-btn">
+                <i class="play-icon">▶</i> Reproduzir tudo
+            </button>
+            <button id="stop-all-btn" class="player-btn">
+                <i>■</i> Stop
+            </button>
+            <button id="restart-all-btn" class="player-btn">
+                <i>⟲</i> Início
+            </button>
+        </div>
+        <div class="play-all-progress">
+            <div class="current-clip-info">Pronto para reproduzir</div>
+            <div class="progress-container">
+                <div class="progress-bar" id="play-all-progress-bar" style="width: 0%"></div>
+            </div>
+        </div>
+    `;
+    
+    assemblyList.appendChild(playAllPlayer);
+    
+    // Configurar event listeners para o player
+    setupPlayAllListeners();
+    
     // Configurar o recurso de arrastar e soltar
     setupDragAndDrop();
 }
@@ -417,6 +446,196 @@ function handleDragEnd(e) {
     clips.forEach(clip => {
         clip.classList.remove('drag-over', 'dragging');
     });
+}
+
+// Variáveis para controle de reprodução sequencial
+let currentPlayingIndex = -1;
+let isPlayingAll = false;
+let playAllTimeUpdateHandler = null;
+
+// Configurar event listeners para o player "Reproduzir Tudo"
+function setupPlayAllListeners() {
+    const playAllBtn = document.getElementById('play-all-btn');
+    const stopAllBtn = document.getElementById('stop-all-btn');
+    const restartAllBtn = document.getElementById('restart-all-btn');
+    
+    if (playAllBtn) {
+        playAllBtn.addEventListener('click', togglePlayAll);
+    }
+    
+    if (stopAllBtn) {
+        stopAllBtn.addEventListener('click', stopPlayAll);
+    }
+    
+    if (restartAllBtn) {
+        restartAllBtn.addEventListener('click', restartPlayAll);
+    }
+}
+
+// Iniciar ou pausar a reprodução de todos os trechos
+function togglePlayAll() {
+    const playAllBtn = document.getElementById('play-all-btn');
+    
+    if (!isPlayingAll) {
+        // Iniciar reprodução
+        if (currentPlayingIndex === -1) {
+            // Começar do início
+            currentPlayingIndex = 0;
+        }
+        
+        startPlayingClip(currentPlayingIndex);
+        isPlayingAll = true;
+        playAllBtn.innerHTML = '<i class="play-icon">❚❚</i> Pausar';
+    } else {
+        // Pausar reprodução
+        audioPlayer.pause();
+        isPlayingAll = false;
+        playAllBtn.innerHTML = '<i class="play-icon">▶</i> Reproduzir tudo';
+    }
+}
+
+// Iniciar a reprodução de um trecho específico
+function startPlayingClip(index) {
+    if (index >= assemblyClips.length) {
+        // Chegou ao final da lista
+        finishPlayAll();
+        return;
+    }
+    
+    // Atualizar informação do trecho atual
+    updateCurrentClipInfo(index);
+    
+    // Reproduzir o trecho atual
+    const clip = assemblyClips[index];
+    audioPlayer.currentTime = clip.startTime;
+    audioPlayer.play();
+    
+    // Remover handler anterior se existir
+    if (playAllTimeUpdateHandler) {
+        audioPlayer.removeEventListener('timeupdate', playAllTimeUpdateHandler);
+    }
+    
+    // Adicionar handler para verificar quando passar para o próximo trecho
+    playAllTimeUpdateHandler = function() {
+        // Atualizar barra de progresso
+        updatePlayAllProgress(index, audioPlayer.currentTime);
+        
+        // Verificar se chegou ao final do trecho atual
+        if (audioPlayer.currentTime >= clip.endTime) {
+            // Passar para o próximo trecho
+            audioPlayer.removeEventListener('timeupdate', playAllTimeUpdateHandler);
+            currentPlayingIndex++;
+            startPlayingClip(currentPlayingIndex);
+        }
+    };
+    
+    audioPlayer.addEventListener('timeupdate', playAllTimeUpdateHandler);
+}
+
+// Parar a reprodução de todos os trechos
+function stopPlayAll() {
+    audioPlayer.pause();
+    
+    // Se estava reproduzindo, voltar para o início do trecho atual
+    if (isPlayingAll && currentPlayingIndex >= 0 && currentPlayingIndex < assemblyClips.length) {
+        audioPlayer.currentTime = assemblyClips[currentPlayingIndex].startTime;
+    }
+    
+    isPlayingAll = false;
+    
+    // Atualizar botão de reprodução
+    const playAllBtn = document.getElementById('play-all-btn');
+    if (playAllBtn) {
+        playAllBtn.innerHTML = '<i class="play-icon">▶</i> Reproduzir tudo';
+    }
+    
+    // Atualizar informações
+    document.querySelector('.current-clip-info').textContent = 'Reprodução parada';
+}
+
+// Reiniciar a reprodução do início
+function restartPlayAll() {
+    audioPlayer.pause();
+    currentPlayingIndex = 0;
+    
+    if (assemblyClips.length > 0) {
+        audioPlayer.currentTime = assemblyClips[0].startTime;
+    }
+    
+    updatePlayAllProgress(0, 0);
+    document.querySelector('.current-clip-info').textContent = 'Pronto para reproduzir';
+    
+    // Atualizar botão de reprodução
+    const playAllBtn = document.getElementById('play-all-btn');
+    if (playAllBtn) {
+        playAllBtn.innerHTML = '<i class="play-icon">▶</i> Reproduzir tudo';
+    }
+    
+    isPlayingAll = false;
+}
+
+// Finalizar a reprodução de todos os trechos
+function finishPlayAll() {
+    audioPlayer.pause();
+    isPlayingAll = false;
+    currentPlayingIndex = -1;
+    
+    // Atualizar botão de reprodução
+    const playAllBtn = document.getElementById('play-all-btn');
+    if (playAllBtn) {
+        playAllBtn.innerHTML = '<i class="play-icon">▶</i> Reproduzir tudo';
+    }
+    
+    // Atualizar informações
+    document.querySelector('.current-clip-info').textContent = 'Reprodução concluída';
+    document.getElementById('play-all-progress-bar').style.width = '100%';
+}
+
+// Atualizar informações do trecho atual
+function updateCurrentClipInfo(index) {
+    const clip = assemblyClips[index];
+    const infoElement = document.querySelector('.current-clip-info');
+    
+    if (infoElement) {
+        infoElement.textContent = `Reproduzindo Trecho ${index + 1} de ${assemblyClips.length}: ${formatTime(clip.startTime)} - ${formatTime(clip.endTime)}`;
+    }
+}
+
+// Atualizar barra de progresso
+function updatePlayAllProgress(clipIndex, currentTime) {
+    if (assemblyClips.length === 0) return;
+    
+    const clip = assemblyClips[clipIndex];
+    
+    // Calcular progresso total
+    let totalDuration = 0;
+    let elapsedDuration = 0;
+    
+    // Somar durações de todos os trechos
+    assemblyClips.forEach((c, i) => {
+        const clipDuration = c.endTime - c.startTime;
+        totalDuration += clipDuration;
+        
+        // Somar duração dos trechos anteriores
+        if (i < clipIndex) {
+            elapsedDuration += clipDuration;
+        }
+    });
+    
+    // Adicionar tempo decorrido do trecho atual
+    if (clipIndex < assemblyClips.length) {
+        elapsedDuration += (currentTime - clip.startTime);
+    }
+    
+    // Calcular percentual
+    const progressPercent = (totalDuration > 0) ? 
+        (elapsedDuration / totalDuration) * 100 : 0;
+    
+    // Atualizar barra de progresso
+    const progressBar = document.getElementById('play-all-progress-bar');
+    if (progressBar) {
+        progressBar.style.width = `${progressPercent}%`;
+    }
 }
 
 // Inicializar quando o DOM estiver pronto

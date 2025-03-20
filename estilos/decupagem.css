@@ -774,3 +774,51 @@ footer {
     color: #777;
     font-style: italic;
 }
+
+/* Estilos para o player "Reproduzir Tudo" */
+.play-all-player {
+    background-color: #f8f9fa;
+    border: 1px solid #3498db;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 30px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.play-all-player h3 {
+    color: #2980b9;
+    margin-top: 0;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.play-all-controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.play-all-progress {
+    margin-top: 10px;
+}
+
+.current-clip-info {
+    text-align: center;
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: #555;
+}
+
+.progress-container {
+    height: 10px;
+    background-color: #eee;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.progress-container .progress-bar {
+    height: 100%;
+    background-color: #3498db;
+    transition: width 0.3s ease;
+}
