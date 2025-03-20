@@ -27,7 +27,6 @@ function checkBrowserFeatures() {
 const transcript = document.getElementById('transcript');
 const transcribeBtn = document.getElementById('transcribe-btn');
 const clearBtn = document.getElementById('clear-btn');
-const downloadBtn = document.getElementById('download-btn');
 
 // Consolidate initialization code into a single function
 function initializeApp() {
@@ -120,9 +119,6 @@ function setupButtonEvents() {
             attachNewTranscriptionButtonListener();
         }
     });
-    
-    // Botão de download
-    downloadBtn.addEventListener('click', downloadTranscription);
     
     // Botão de limpar
     clearBtn.addEventListener('click', function() {

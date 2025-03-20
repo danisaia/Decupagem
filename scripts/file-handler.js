@@ -68,27 +68,11 @@ function initFileUpload() {
     console.log("Inicialização de upload concluída");
 }
 
-// Baixar a transcrição como arquivo de texto
-function downloadTranscription() {
-    const transcript = document.getElementById('transcript');
-    const text = transcript.textContent;
-    const blob = new Blob([text], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'transcricao.txt';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-}
-
 // Limpar todos os dados do arquivo
 function clearFile() {
     const fileInput = document.getElementById('audio-file');
     const fileName = document.getElementById('file-name');
     const transcript = document.getElementById('transcript');
-    const downloadBtn = document.getElementById('download-btn');
     const status = document.getElementById('status');
     const selectionControls = document.getElementById('selection-controls');
     
@@ -97,7 +81,6 @@ function clearFile() {
     transcript.textContent = '';
     status.className = 'status';
     status.textContent = '';
-    downloadBtn.style.display = 'none';
     selectionControls.style.display = 'none';
     
     // Limpar URL do objeto

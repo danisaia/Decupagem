@@ -141,10 +141,6 @@ button.secondary:hover {
     background-color: #e3f2fd;
     color: #0c5460;
 }
-.download-btn {
-    margin-top: 15px;
-    display: none;
-}
 footer {
     text-align: center;
     margin-top: 40px;

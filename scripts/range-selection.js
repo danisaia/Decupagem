@@ -7,7 +7,7 @@ window.rangeSelectionMode = false;
 let startWord = null;
 let endWord = null;
 let highlightedWords = [];
-let selectionPrecisionOffset = 0.05; // Default precision offset
+let selectionPrecisionOffset = 0.05; // Definir valor fixo para opção Média
 
 // Iniciar modo de seleção de intervalo
 function startRangeSelectionMode() {
@@ -355,32 +355,12 @@ function initRangeSelection() {
         // Add the event listener
         clearSelectionBtn.addEventListener('click', clearSelectionHandler);
     }
-    
-    // Initialize precision control
-    initPrecisionControl();
 }
 
 // Add a handler function for the clear selection button
 function clearSelectionHandler() {
     clearRangeSelection();
     document.getElementById('clear-selection-btn').style.display = 'none';
-}
-
-// Add this function to your script
-function initPrecisionControl() {
-    const precisionSelect = document.getElementById('selection-precision');
-    if (precisionSelect) {
-        precisionSelect.addEventListener('change', function() {
-            selectionPrecisionOffset = parseFloat(this.value);
-            console.log(`Precisão da seleção ajustada para: ${selectionPrecisionOffset}`);
-            
-            // Update current selection if it exists
-            if (startWord && endWord) {
-                selectionStartTime = parseFloat(startWord.getAttribute('data-start')) + selectionPrecisionOffset;
-                selectionEndTime = parseFloat(endWord.getAttribute('data-end')) - selectionPrecisionOffset;
-            }
-        });
-    }
 }
 
 // Configurar seleção para o player de áudio com offsets adaptativos
@@ -394,7 +374,7 @@ function calculateAdaptiveOffsets() {
     const endWordDuration = parseFloat(endWord.getAttribute('data-end')) - parseFloat(endWord.getAttribute('data-end'));
     
     // Obter o valor base do offset da seleção do usuário
-    const baseOffset = parseFloat(document.getElementById('selection-precision').value);
+    const baseOffset = 0.05; // Usar valor fixo para precisão média
     
     // Ajustar offsets dinâmicos baseados no contexto
     let startOffset = baseOffset;
