@@ -4,8 +4,7 @@
 
 // Variáveis para o player
 let audioPlayer;
-let playBtn;
-let pauseBtn;
+let playPauseBtn;
 let stopBtn;
 let restartBtn;
 let playbackSpeed;
@@ -33,8 +32,7 @@ function initAudioPlayer() {
     
     console.log("Elemento de áudio encontrado:", audioPlayer);
     
-    playBtn = document.getElementById('play-btn');
-    pauseBtn = document.getElementById('pause-btn');
+    playPauseBtn = document.getElementById('play-pause-btn');
     stopBtn = document.getElementById('stop-btn');
     restartBtn = document.getElementById('restart-btn');
     playbackSpeed = document.getElementById('playback-speed');
@@ -43,18 +41,20 @@ function initAudioPlayer() {
     durationElement = document.querySelector('.duration');
     
     // Configurar eventos para botões do player
-    playBtn.addEventListener('click', function() {
-        if (activeSelection && !isSelectionPlaying) {
-            playSelection();
+    playPauseBtn.addEventListener('click', function() {
+        if (audioPlayer.paused) {
+            if (activeSelection && !isSelectionPlaying) {
+                playSelection();
+            } else {
+                audioPlayer.play();
+                this.innerHTML = '<i class="play-icon">❚❚</i> <span class="button-text">Pause</span>';
+            }
         } else {
-            audioPlayer.play();
-        }
-    });
-    
-    pauseBtn.addEventListener('click', function() {
-        audioPlayer.pause();
-        if (isSelectionPlaying) {
-            isSelectionPlaying = false;
+            audioPlayer.pause();
+            if (isSelectionPlaying) {
+                isSelectionPlaying = false;
+            }
+            this.innerHTML = '<i class="play-icon">▶</i> <span class="button-text">Play</span>';
         }
     });
     
@@ -86,6 +86,9 @@ function initAudioPlayer() {
     
     // Atualizar timeline durante a reprodução
     audioPlayer.addEventListener('timeupdate', updateTimeline);
+    audioPlayer.addEventListener('ended', function() {
+        playPauseBtn.innerHTML = '<i class="play-icon">▶</i> <span class="button-text">Play</span>';
+    });
 }
 
 // Configurar o player de áudio para um arquivo
@@ -185,8 +188,7 @@ function updateDuration() {
 
 // Habilitar/desabilitar controles do player
 function enablePlayerControls() {
-    playBtn.disabled = false;
-    pauseBtn.disabled = false;
+    playPauseBtn.disabled = false;
     stopBtn.disabled = false;
     restartBtn.disabled = false;
     playbackSpeed.disabled = false;
@@ -194,8 +196,7 @@ function enablePlayerControls() {
 }
 
 function disablePlayerControls() {
-    playBtn.disabled = true;
-    pauseBtn.disabled = true;
+    playPauseBtn.disabled = true;
     stopBtn.disabled = true;
     restartBtn.disabled = true;
     playbackSpeed.disabled = true;
@@ -216,6 +217,7 @@ function playSelection() {
     // Iniciar reprodução
     audioPlayer.play();
     isSelectionPlaying = true;
+    playPauseBtn.innerHTML = '<i class="play-icon">❚❚</i> <span class="button-text">Pause</span>';
     
     // Mudar aparência do botão
     const playSelectionBtn = document.getElementById('play-selection-btn');
@@ -243,6 +245,7 @@ function stopSelectionPlayback() {
     audioPlayer.removeEventListener('timeupdate', checkSelectionBoundary);
     
     isSelectionPlaying = false;
+    playPauseBtn.innerHTML = '<i class="play-icon">▶</i> <span class="button-text">Play</span>';
     
     // Restaurar aparência do botão
     const playSelectionBtn = document.getElementById('play-selection-btn');
@@ -263,11 +266,15 @@ function playAudioInterval(startTime, endTime) {
         return;
     }
     
+    // Aplicar ajustes de precisão
+    const preciseStartTime = Math.max(0, startTime);
+    const preciseEndTime = Math.min(audioPlayer.duration, endTime);
+    
     // Parar qualquer reprodução atual
     audioPlayer.pause();
     
     // Definir tempo inicial
-    audioPlayer.currentTime = startTime;
+    audioPlayer.currentTime = preciseStartTime;
     
     // Iniciar reprodução
     audioPlayer.play();
@@ -275,9 +282,9 @@ function playAudioInterval(startTime, endTime) {
     // Destacar o player
     document.getElementById('audio-player-container').classList.add('selection-playing');
     
-    // Monitorar quando parar a reprodução
+    // Monitorar quando parar a reprodução com mais precisão
     const timeUpdateHandler = function() {
-        if (audioPlayer.currentTime >= endTime) {
+        if (audioPlayer.currentTime >= preciseEndTime - 0.01) { // Slight adjustment for better precision
             audioPlayer.pause();
             audioPlayer.removeEventListener('timeupdate', timeUpdateHandler);
             document.getElementById('audio-player-container').classList.remove('selection-playing');
@@ -285,7 +292,7 @@ function playAudioInterval(startTime, endTime) {
     };
     
     audioPlayer.addEventListener('timeupdate', timeUpdateHandler);
-    console.log(`Reproduzindo intervalo: ${formatTime(startTime)} - ${formatTime(endTime)}`);
+    console.log(`Reproduzindo intervalo: ${formatTime(preciseStartTime)} - ${formatTime(preciseEndTime)}`);
 }
 
 // Limpar recursos do player de áudio

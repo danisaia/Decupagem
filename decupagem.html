@@ -40,8 +40,7 @@
         <div class="audio-player-container" id="audio-player-container">
             <audio id="audio-player" preload="metadata"></audio>
             <div class="audio-controls">
-                <button id="play-btn" class="player-btn" disabled><i>▶</i> Play</button>
-                <button id="pause-btn" class="player-btn" disabled><i>❚❚</i> Pause</button>
+                <button id="play-pause-btn" class="player-btn" disabled><i class="play-icon">▶</i> <span class="button-text">Play</span></button>
                 <button id="stop-btn" class="player-btn" disabled><i>■</i> Stop</button>
                 <button id="restart-btn" class="player-btn" disabled><i>⟲</i> Início</button>
                 
@@ -84,6 +83,15 @@
             </button>
         </div>
         
+        <div class="precision-control">
+            <label for="selection-precision">Precisão da seleção:</label>
+            <select id="selection-precision">
+                <option value="0">Exata</option>
+                <option value="0.05" selected>Média (recomendado)</option>
+                <option value="0.1">Baixa</option>
+            </select>
+        </div>
+
         <button id="download-btn" class="download-btn">Baixar Transcrição</button>
     </div>
 

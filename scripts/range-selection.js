@@ -7,6 +7,7 @@ window.rangeSelectionMode = false;
 let startWord = null;
 let endWord = null;
 let highlightedWords = [];
+let selectionPrecisionOffset = 0.05; // Default precision offset
 
 // Iniciar modo de seleção de intervalo
 function startRangeSelectionMode() {
@@ -111,8 +112,8 @@ function handleWordClick(wordElement) {
         transcript.classList.remove('range-selection-active');
         
         // Configurar seleção para o player de áudio
-        selectionStartTime = parseFloat(startWord.getAttribute('data-start'));
-        selectionEndTime = parseFloat(endWord.getAttribute('data-end'));
+        selectionStartTime = parseFloat(startWord.getAttribute('data-start')) + selectionPrecisionOffset; // Add small offset to avoid leading audio
+        selectionEndTime = parseFloat(endWord.getAttribute('data-end')) - selectionPrecisionOffset; // Subtract small offset to avoid trailing audio
         
         // Armazenar seleção ativa
         activeSelection = {
@@ -194,7 +195,7 @@ function initRangeSelection() {
                 <button id="clear-range">Limpar seleção</button>
             </div>
         `;
-        document.querySelector('.transcript-container').insertAdjacentElement('beforebegin', rangePlayerElement);
+        document.querySelector('.transcript-container').insertAdjacentElement('afterend', rangePlayerElement);
     }
     
     // Estes eventos são adicionados após a criação dos elementos no DOM
@@ -216,4 +217,23 @@ function initRangeSelection() {
             playAudioInterval(startTime, endTime);
         }
     });
+    
+    initPrecisionControl();
+}
+
+// Add this function to your script
+function initPrecisionControl() {
+    const precisionSelect = document.getElementById('selection-precision');
+    if (precisionSelect) {
+        precisionSelect.addEventListener('change', function() {
+            selectionPrecisionOffset = parseFloat(this.value);
+            console.log(`Precisão da seleção ajustada para: ${selectionPrecisionOffset}`);
+            
+            // Update current selection if it exists
+            if (startWord && endWord) {
+                selectionStartTime = parseFloat(startWord.getAttribute('data-start')) + selectionPrecisionOffset;
+                selectionEndTime = parseFloat(endWord.getAttribute('data-end')) - selectionPrecisionOffset;
+            }
+        });
+    }
 }
