@@ -1,36 +1,38 @@
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    line-height: 1.6;
-    color: #333;
-    max-width: 1200px;
+    line-height: 1.5;
+    color: #444;
+    max-width: 1000px; /* Reduzido de 1200px */
     margin: 0 auto;
-    padding: 20px;
-    background-color: #f5f5f5;
+    padding: 16px;
+    background-color: #f7f7f7;
 }
 .container {
     background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    padding: 30px;
-    margin-bottom: 30px;
+    border-radius: 6px; /* Reduzido de 8px */
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08); /* Sombra mais sutil */
+    padding: 24px; /* Reduzido de 30px */
+    margin-bottom: 24px; /* Reduzido de 30px */
 }
 h1 {
-    color: #2c3e50;
+    color: #3a4b5c; /* Menos saturado que #2c3e50 */
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 24px; /* Reduzido de 30px */
+    font-size: 24px; /* Tamanho reduzido */
 }
 h2 {
-    color: #3498db;
-    border-bottom: 2px solid #eee;
-    padding-bottom: 10px;
-    margin-top: 25px;
+    color: #4a86af; /* Menos saturado que #3498db */
+    border-bottom: 1px solid #eee; /* Mais fino que 2px */
+    padding-bottom: 8px; /* Reduzido de 10px */
+    margin-top: 20px; /* Reduzido de 25px */
+    font-size: 20px; /* Tamanho reduzido */
 }
 .file-upload {
-    border: 2px dashed #3498db;
-    border-radius: 8px;
-    padding: 30px;
+    border: 1px dashed #4a86af; /* Mais fino e menos saturado */
+    border-radius: 6px; /* Reduzido de 8px */
+    padding: 24px; /* Reduzido de 30px */
     text-align: center;
-    margin: 20px 0;
+    margin: 16px 0; /* Reduzido de 20px */
     transition: all 0.3s;
     background-color: #f8f9fa;
 }
@@ -47,6 +49,8 @@ h2 {
     cursor: pointer;
     display: block;
     margin-bottom: 10px;
+    text-align: center; /* Garantir alinhamento centralizado */
+    width: 100%; /* Garantir que ocupe toda a largura */
 }
 .selected-file {
     margin-top: 15px;
@@ -70,40 +74,40 @@ select, input[type="text"] {
     font-size: 14px;
 }
 button {
-    background-color: #3498db;
+    background-color: #4a86af; /* Menos saturado que #3498db */
     color: white;
     border: none;
-    padding: 12px 24px;
+    padding: 8px 16px; /* Reduzido de 12px 24px */
     border-radius: 4px;
     cursor: pointer;
-    font-size: 16px;
-    font-weight: bold;
+    font-size: 14px; /* Reduzido de 16px */
+    font-weight: 500; /* Menos negrito */
     transition: background-color 0.3s;
     display: inline-block;
-    margin-right: 10px;
+    margin-right: 8px; /* Reduzido de 10px */
 }
 button:hover {
-    background-color: #2980b9;
+    background-color: #3a6d8f; /* Menos saturado que #2980b9 */
 }
 button.secondary {
-    background-color: #95a5a6;
+    background-color: #a0a9ae; /* Menos saturado que #95a5a6 */
 }
 button.secondary:hover {
-    background-color: #7f8c8d;
+    background-color: #8a9294; /* Menos saturado que #7f8c8d */
 }
 .transcript-container {
     border: 1px solid #ddd;
     border-radius: 4px;
-    padding: 15px;
-    margin-top: 20px;
+    padding: 12px; /* Reduzido de 15px */
+    margin-top: 16px; /* Reduzido de 20px */
     background-color: #fff;
     min-height: 200px;
-    max-height: 500px;
+    max-height: 400px; /* Reduzido de 500px */
     overflow-y: auto;
     white-space: pre-wrap;
     user-select: text;
     cursor: text;
-    line-height: 1.8;
+    line-height: 1.6; /* Reduzido de 1.8 */
     position: relative;
 }
 .loading {
@@ -126,20 +130,20 @@ button.secondary:hover {
 }
 .status {
     margin-top: 15px;
-    padding: 10px;
+    padding: 8px; /* Reduzido de 10px */
     border-radius: 4px;
 }
 .status.success {
-    background-color: #d4edda;
-    color: #155724;
+    background-color: #dbeadf; /* Menos saturado que #d4edda */
+    color: #2d6a4f; /* Menos saturado que #155724 */
 }
 .status.error {
-    background-color: #f8d7da;
-    color: #721c24;
+    background-color: #f0dcde; /* Menos saturado que #f8d7da */
+    color: #854d56; /* Menos saturado que #721c24 */
 }
 .status.info {
-    background-color: #e3f2fd;
-    color: #0c5460;
+    background-color: #e8f1f8; /* Menos saturado que #e3f2fd */
+    color: #3a6d8f; /* Menos saturado que #0c5460 */
 }
 footer {
     text-align: center;
@@ -155,22 +159,23 @@ footer {
     display: none;
 }
 .progress-bar {
-    height: 20px;
+    height: 30px; /* Aumentado de 20px para 30px */
     width: 0%;
     background-color: #3498db;
     border-radius: 4px;
     text-align: center;
-    line-height: 20px;
+    line-height: 30px; /* Igual à altura para centralizar verticalmente */
     color: white;
+    font-weight: bold; /* Texto em negrito para melhor visibilidade */
 }
 
 /* Estilos para o player de áudio */
 .audio-player-container {
     background-color: #f8f9fa;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 20px;
+    border: 1px solid #e0e0e0; /* Cor mais suave que #ddd */
+    border-radius: 6px; /* Reduzido de 8px */
+    padding: 12px; /* Reduzido de 15px */
+    margin-bottom: 16px; /* Reduzido de 20px */
     transition: background-color 0.3s ease;
 }
 
@@ -250,19 +255,19 @@ footer {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
+    gap: 8px; /* Reduzido de 10px */
+    margin-bottom: 8px; /* Reduzido de 10px */
 }
 
 .player-btn {
-    background-color: #3498db;
+    background-color: #4a86af; /* Menos saturado */
     color: white;
     border: none;
-    padding: 8px 12px;
+    padding: 6px 10px; /* Reduzido de 8px 12px */
     border-radius: 4px;
     cursor: pointer;
-    font-size: 14px;
-    min-width: 70px;
+    font-size: 13px; /* Reduzido de 14px */
+    min-width: 60px; /* Reduzido de 70px */
     transition: background-color 0.2s;
 }
 
@@ -338,11 +343,11 @@ footer {
 .selection-controls {
     position: absolute;
     display: none;
-    background-color: #3498db;
+    background-color: #4a86af; /* Menos saturado */
     color: white;
-    padding: 8px 12px;
+    padding: 6px 10px; /* Reduzido de 8px 12px */
     border-radius: 4px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2); /* Sombra mais sutil */
     z-index: 1000;
     white-space: nowrap;
 }
@@ -474,9 +479,9 @@ footer {
 .range-selection-instructions {
     background-color: #f8f9fa;
     border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 20px;
+    border-radius: 6px; /* Reduzido de 8px */
+    padding: 12px; /* Reduzido de 15px */
+    margin-bottom: 16px; /* Reduzido de 20px */
     text-align: center;
 }
 
@@ -506,19 +511,19 @@ footer {
 }
 
 .cancel-btn {
-    background-color: #e74c3c;
+    background-color: #c55a4f; /* Menos saturado que #e74c3c */
     color: white;
     border: none;
-    padding: 8px 16px;
+    padding: 6px 12px; /* Reduzido de 8px 16px */
     border-radius: 4px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 13px; /* Reduzido de 14px */
     transition: background-color 0.2s;
     margin-top: 10px;
 }
 
 .cancel-btn:hover {
-    background-color: #c0392b;
+    background-color: #9e4a41; /* Menos saturado que #c0392b */
 }
 
 /* Estilos para transcrição durante seleção de intervalo */
@@ -533,27 +538,27 @@ footer {
 
 /* Estilos para palavras selecionadas */
 .transcript-word.word-start {
-    background-color: rgba(46, 204, 113, 0.3); /* Verde */
+    background-color: rgba(74, 153, 113, 0.25); /* Verde menos saturado e mais transparente */
     border-radius: 3px 0 0 3px;
-    padding: 2px 4px;
+    padding: 1px 3px; /* Reduzido de 2px 4px */
     font-weight: bold;
 }
 
 .transcript-word.word-end {
-    background-color: rgba(46, 204, 113, 0.3); /* Verde */
+    background-color: rgba(74, 153, 113, 0.25); /* Verde menos saturado e mais transparente */
     border-radius: 0 3px 3px 0;
-    padding: 2px 4px;
+    padding: 1px 3px; /* Reduzido de 2px 4px */
     font-weight: bold;
 }
 
 .transcript-word.word-between {
-    background-color: rgba(46, 204, 113, 0.15); /* Verde mais claro */
+    background-color: rgba(74, 153, 113, 0.12); /* Verde mais claro e menos saturado */
     padding: 2px 0;
 }
 
 /* Estilo para palavra atualmente em reprodução */
 .transcript-word.playing {
-    background-color: rgba(241, 196, 15, 0.3); /* Amarelo */
+    background-color: rgba(130, 180, 95, 0.2); /* Amarelo menos saturado */
     font-weight: bold;
     border-radius: 3px;
     padding: 2px 4px;
@@ -564,7 +569,7 @@ footer {
     background-color: #f1f9ff;
     border: 1px solid #3498db;
     border-radius: 8px;
-    padding: 15px;
+    padding: 20px;
     margin: 20px 0;
     display: none !important;
 }
@@ -593,7 +598,7 @@ footer {
 
 /* Estilo específico para o botão de download */
 .download-btn {
-    background-color: #27ae60 !important;
+    background-color: #4a9971 !important; /* Menos saturado que #27ae60 */
     margin-left: 10px;
     display: inline-block !important; /* Garantir que o botão seja exibido */
 }
@@ -668,30 +673,30 @@ footer {
 
 /* Adicionar estilos para o botão "Adicionar Trecho" e a seção "Montagem" */
 #add-to-assembly-btn {
-    background-color: #27ae60;
+    background-color: #4a9971; /* Menos saturado que #27ae60 */
     color: white;
     margin-right: 10px;
 }
 
 #add-to-assembly-btn:hover {
-    background-color: #219653;
+    background-color: #3d7f5f; /* Menos saturado que #219653 */
 }
 
 .assembly-list-container {
     border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 15px;
-    margin-top: 20px;
+    border-radius: 6px; /* Reduzido de 8px */
+    padding: 12px; /* Reduzido de 15px */
+    margin-top: 16px; /* Reduzido de 20px */
     background-color: #f9f9f9;
 }
 
 .assembly-clip {
     background-color: white;
     border: 1px solid #e0e0e0;
-    border-radius: 6px;
-    padding: 15px;
-    margin-bottom: 15px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    border-radius: 5px; /* Reduzido de 6px */
+    padding: 12px; /* Reduzido de 15px */
+    margin-bottom: 12px; /* Reduzido de 15px */
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05); /* Sombra mais sutil */
     cursor: move;
     transition: box-shadow 0.2s, transform 0.2s;
 }
@@ -846,13 +851,13 @@ footer {
 }
 
 .time-adjust-btn.preview-btn {
-    background-color: #9b59b6;
+    background-color: #8668a1; /* Menos saturado que #9b59b6 */
     min-width: 60px;
     font-weight: bold;
 }
 
 .time-adjust-btn.preview-btn:hover {
-    background-color: #8e44ad;
+    background-color: #735990; /* Menos saturado que #8e44ad */
 }
 
 .time-adjust-btn.ultra-fine {
@@ -874,10 +879,10 @@ footer {
 }
 
 .download-btn {
-    background-color: #27ae60 !important;
+    background-color: #4a9971 !important; /* Menos saturado que #27ae60 */
     margin-left: 10px;
 }
 
 .download-btn:hover {
-    background-color: #219653 !important;
+    background-color: #3d7f5f !important; /* Menos saturado que #219653 */
 }

@@ -9,7 +9,9 @@
 <body>
     <div class="container">
         <h1>Decupagem de Áudio</h1>
-        <p>Ferramenta para transcrição automática de arquivos de áudio para texto.</p>
+        <p style="text-align: center; margin-top: -10px; color: #666; font-size: 14px;">
+            <strong>Transcrição automática</strong> de áudio para texto, com <strong>montador de trechos</strong> e <strong>normalização automática</strong> do arquivo de som.
+        </p>
 
         <!-- Section 1: File Selection -->
         <div id="file-selection-section">
@@ -45,7 +47,7 @@
             </div>
             
             <!-- Player de áudio com controles personalizados -->
-            <div class="audio-player-container" id="audio-player-container">
+            <div class="audio-player-container" id="audio-player-container" style="margin: 14px 0;">
                 <audio id="audio-player" preload="metadata"></audio>
                 <div class="audio-controls">
                     <button id="play-pause-btn" class="player-btn" disabled><i class="play-icon">▶</i> <span class="button-text">Play</span></button>
@@ -76,7 +78,7 @@
             
             <!-- Adicionar após a área de transcrição -->
             <div class="range-selection-instructions" id="range-selection-container">
-                <div class="selection-buttons">
+                <div class="selection-buttons" style="margin: 12px 0;">
                     <button id="start-range-selection" class="instruction-btn">Selecionar Trecho</button>
                     <button id="add-to-assembly-btn" class="primary-btn" style="display: none;">Adicionar Trecho</button>
                     <button id="clear-selection-btn" class="cancel-btn" style="display: none;">Limpar Seleção</button>
@@ -110,8 +112,8 @@
         </div>
     </div>
 
-    <footer>
-        <p>Decupagem - Ferramenta de Transcrição Automática</p>
+    <footer style="text-align: center; margin-top: 30px; font-size: 13px; color: #777;">
+        <p>Decupagem - ferramenta opensource por Daniel Ito Isaia</p>
     </footer>
 
     <!-- Scripts modulares - com caminhos corretos -->
