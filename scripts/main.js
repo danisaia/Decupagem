@@ -211,4 +211,22 @@ function resetApplication() {
     
     document.getElementById('progress-container').style.display = 'none';
     document.getElementById('loading').style.display = 'none';
+    
+    // Limpar trechos da montagem e esconder a seção
+    if (typeof clearAllClips === 'function') {
+        // Limpar array de trechos sem confirmação
+        assemblyClips = [];
+        clipIdCounter = 0;
+        
+        // Limpar localStorage
+        localStorage.removeItem('assemblyClips');
+        
+        // Atualizar interface
+        if (typeof renderAssemblyClips === 'function') {
+            renderAssemblyClips();
+        }
+        
+        // Esconder seção de montagem
+        document.getElementById('assembly-section').style.display = 'none';
+    }
 }

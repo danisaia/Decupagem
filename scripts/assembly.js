@@ -23,8 +23,8 @@ function initAssembly() {
         clearAllBtn.addEventListener('click', clearAllClips);
     }
     
-    // Verificar se há trechos salvos no localStorage
-    loadClipsFromLocalStorage();
+    // Remover esta linha para não carregar automaticamente do localStorage
+    // loadClipsFromLocalStorage();
 }
 
 // Adicionar a seleção atual à montagem
