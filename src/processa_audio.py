@@ -66,47 +66,49 @@ def process_audio_for_radio(audio_path):
             audio = audio.set_frame_rate(44100)
             print(f"Taxa de amostragem ajustada para 44100 Hz")
         
-        # Aplicar compressão dinâmica (threshold em dB, ratio, attack em ms, release em ms)
-        audio = compress_dynamic_range(audio, threshold=-20, ratio=4.0, attack=5.0, release=50.0)
-        print("Compressão dinâmica aplicada")
-        
-        # Equalização básica para melhorar clareza da voz
+        # Filtros básicos primeiro
         # Remover frequências baixas (abaixo de 80Hz) que podem causar ruído
         audio = audio.high_pass_filter(80)
+        print("Filtro passa-alta aplicado")
         
-        # Normalizar com pico máximo em -6dB (0.5 em escala linear)
-        target_dBFS = -6.0
-        change_in_dBFS = target_dBFS - audio.dBFS
-        audio = audio.apply_gain(change_in_dBFS)
-        print(f"Áudio normalizado para {target_dBFS} dBFS")
-
+        # Aplicar compressão dinâmica mais suave
+        # Reduzindo a ratio e ajustando threshold
+        audio = compress_dynamic_range(audio, 
+                                      threshold=-24,  # Threshold mais baixo
+                                      ratio=2.5,      # Ratio mais moderada
+                                      attack=10.0,    # Attack mais lento
+                                      release=100.0)  # Release mais lento
+        print("Compressão dinâmica aplicada")
+        
         # Criar arquivo temporário para o áudio pré-processado
         fd, temp_audio = tempfile.mkstemp(suffix='.wav')
         os.close(fd)
         audio.export(temp_audio, format="wav")
         
-        # Aplicar equalização low shelf usando FFmpeg diretamente para aumentar as frequências médias
-        # Equivalente ao low_shelf(300, gain=1.5)
+        # Aplicar todos os processamentos finais com FFmpeg em uma única chamada:
+        # 1. Equalização leve para voz
+        # 2. Compressão suave
+        # 3. Limitador rigoroso em -6dB
         file_ext = os.path.splitext(audio_path)[1]
         filename = f"processed_{os.path.basename(audio_path)}"
         processed_path = os.path.join("uploads", filename)
         
-        # Comando FFmpeg para aplicar filtro de baixa frequência (low shelf em 300Hz com ganho de 1.5dB)
         ffmpeg_cmd = [
             'ffmpeg', '-y',
             '-i', temp_audio,
-            '-af', 'equalizer=f=300:width_type=o:width=1:g=1.5',  # low shelf em 300Hz
+            '-af', 'equalizer=f=300:width_type=o:width=1:g=1.5,compand=0|0:1|1:-6/-6:-6/-6:0:0:0.1,alimiter=limit=-6dB:level=true',
             '-acodec', 'libmp3lame' if file_ext.lower() == '.mp3' else 'pcm_s16le',
             processed_path
         ]
         
         try:
             subprocess.run(ffmpeg_cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            print("Equalização de baixas frequências aplicada via FFmpeg")
+            print("Processamento final aplicado via FFmpeg (equalização e limitador)")
         except subprocess.CalledProcessError as e:
-            print(f"Aviso: Não foi possível aplicar o filtro de equalização: {e}")
-            # Em caso de falha, usamos o áudio já processado sem o último filtro
-            shutil.copy2(temp_audio, processed_path)
+            print(f"Aviso: Não foi possível aplicar o processamento final: {e}")
+            # Em caso de falha, aplicar apenas normalização básica e exportar
+            audio = normalize(audio, headroom=6.0)  # -6dB headroom
+            audio.export(processed_path, format="mp3" if file_ext.lower() == '.mp3' else "wav")
         
         # Limpar arquivo temporário
         try:

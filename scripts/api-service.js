@@ -51,14 +51,17 @@ async function processTranscription(file) {
     transcript.textContent = '';
     status.className = 'status';
     status.textContent = '';
-    showProgress(10); // Iniciar com 10%
+    showProgress(5); // Iniciar com 5%
     
     try {
-        // 1. Fazer upload do arquivo
-        showStatus('Enviando arquivo...', 'info');
+        // 1. Preparando arquivo
+        showStatus('Preparando arquivo para upload...', 'info');
         const uploadData = new FormData();
         uploadData.append('file', file);
+        showProgress(10);
         
+        // 2. Enviando arquivo
+        showStatus('Enviando arquivo para o servidor...', 'info');
         const uploadResponse = await fetch(API_UPLOAD, {
             method: 'POST',
             body: uploadData
@@ -70,23 +73,33 @@ async function processTranscription(file) {
         
         const uploadResult = await uploadResponse.json();
         console.log("Resposta do servidor (upload):", uploadResult);
-        showProgress(30); // Arquivo enviado - 30%
+        showProgress(25); // Arquivo enviado
+        showStatus('Upload concluído com sucesso!', 'info');
         
-        // Salvar o caminho do arquivo processado
+        // 3. Processamento do áudio
         if (uploadResult.file_path) {
             updateProcessedAudioPath(uploadResult.file_path);
-            console.log("Caminho do arquivo salvo:", uploadResult.file_path);
+            showStatus('Normalizando níveis de áudio...', 'info');
+            showProgress(30);
+            
+            setTimeout(() => {
+                showStatus('Aplicando filtros para melhorar a qualidade...', 'info');
+                showProgress(35);
+            }, 500);
+            
+            setTimeout(() => {
+                showStatus('Preparando áudio para transcrição...', 'info');
+                showProgress(40);
+            }, 1000);
         } else {
             console.error("Servidor não retornou o caminho do arquivo");
             throw new Error("Erro no processamento do arquivo");
         }
         
-        // Adicionar mensagem sobre processamento de áudio
-        showStatus('Processando áudio para padrões de rádio...', 'info');
-        showProgress(40); // Mostrar progresso de processamento
+        // 4. Iniciando transcrição
+        showStatus('Iniciando análise de voz...', 'info');
+        showProgress(45);
         
-        // 2. Iniciar a transcrição
-        showStatus('Iniciando transcrição...', 'info');
         const transcribeResponse = await fetch(API_TRANSCRIBE, {
             method: 'POST',
             headers: {
@@ -97,13 +110,35 @@ async function processTranscription(file) {
             })
         });
         
+        // 5. Processos intermediários de transcrição
+        showStatus('Convertendo fala em texto...', 'info');
+        showProgress(55);
+        
+        setTimeout(() => {
+            showStatus('Identificando falantes...', 'info');
+            showProgress(65);
+        }, 800);
+        
+        setTimeout(() => {
+            showStatus('Aplicando pontuação e formatação...', 'info');
+            showProgress(75);
+        }, 1600);
+        
         if (!transcribeResponse.ok) {
             const errorData = await transcribeResponse.json();
             throw new Error(errorData.error || 'Falha na transcrição');
         }
         
-        // 3. Processar resultado da transcrição
-        showProgress(90); // Processamento quase completo
+        // 6. Finalizando
+        showStatus('Gerando timestamps para palavras...', 'info');
+        showProgress(85);
+        
+        setTimeout(() => {
+            showStatus('Finalizando e preparando visualização...', 'info');
+            showProgress(95);
+        }, 700);
+        
+        // 7. Resultado completo
         const result = await transcribeResponse.json();
         
         // Exibir resultado
