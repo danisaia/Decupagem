@@ -674,7 +674,8 @@ function updatePlayAllProgress(clipIndex, currentTime) {
     }
 }
 
-// Função para baixar a montagem como MP3
+// Modificar a função downloadAssemblyAudio
+
 function downloadAssemblyAudio() {
     if (assemblyClips.length === 0) {
         alert("Não há trechos na montagem para baixar.");
@@ -687,13 +688,25 @@ function downloadAssemblyAudio() {
     const formData = new FormData();
     formData.append('clips', JSON.stringify(assemblyClips));
     
-    // Adicionar o caminho do arquivo de áudio, se disponível
-    if (typeof getCurrentAudioFilePath === 'function' && getCurrentAudioFilePath()) {
-        formData.append('audio_file_path', getCurrentAudioFilePath());
-        console.log("Enviando caminho do arquivo:", getCurrentAudioFilePath());
+    // Obter o caminho relativo do arquivo de áudio
+    const audioPath = processedAudioFilePath || getCurrentAudioFilePath();
+    
+    if (!audioPath) {
+        showStatus("Erro: Arquivo de áudio não encontrado", "error");
+        return;
     }
     
+    console.log("Caminho do áudio para download:", audioPath);
+    
+    // Enviar o caminho completo para o servidor
+    formData.append('audio_file_path', audioPath);
+    
+    // Também enviar o nome do arquivo como backup
+    const fileName = audioPath.split(/[/\\]/).pop();
+    formData.append('audio_file_name', fileName);
+    
     console.log("Enviando clipes para o servidor:", JSON.stringify(assemblyClips));
+    console.log("Caminho do arquivo para processamento:", audioPath);
     
     // Enviar pedido de exportação para o servidor com timeout mais longo
     fetch(window.location.origin + '/api/export-assembly', {

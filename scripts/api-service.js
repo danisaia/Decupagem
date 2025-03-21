@@ -31,7 +31,8 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Resto da inicialização
 });
 
-// Enviar arquivo e iniciar transcrição
+// Modificar a função processTranscription
+
 async function processTranscription(file) {
     console.log("Enviando requisição para:", API_UPLOAD);
     console.log("Dados enviados:", file.name, file.size, file.type);
@@ -68,8 +69,21 @@ async function processTranscription(file) {
         }
         
         const uploadResult = await uploadResponse.json();
-        console.log("Resposta do servidor:", uploadResult);
+        console.log("Resposta do servidor (upload):", uploadResult);
         showProgress(30); // Arquivo enviado - 30%
+        
+        // Salvar o caminho do arquivo processado
+        if (uploadResult.file_path) {
+            updateProcessedAudioPath(uploadResult.file_path);
+            console.log("Caminho do arquivo salvo:", uploadResult.file_path);
+        } else {
+            console.error("Servidor não retornou o caminho do arquivo");
+            throw new Error("Erro no processamento do arquivo");
+        }
+        
+        // Adicionar mensagem sobre processamento de áudio
+        showStatus('Processando áudio para padrões de rádio...', 'info');
+        showProgress(40); // Mostrar progresso de processamento
         
         // 2. Iniciar a transcrição
         showStatus('Iniciando transcrição...', 'info');
@@ -97,12 +111,6 @@ async function processTranscription(file) {
         document.getElementById('progress-container').style.display = 'none';
         
         showStatus('Transcrição concluída com sucesso!', 'success');
-        
-        // Verificar se o botão de download existe antes de tentar acessá-lo
-        const downloadBtn = document.getElementById('download-btn');
-        if (downloadBtn) {
-            downloadBtn.style.display = 'inline-block';
-        }
         
         // Mostrar seção de transcrição e esconder seção de arquivo
         document.getElementById('transcription-section').style.display = 'block';

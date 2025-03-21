@@ -2,6 +2,10 @@
  * Funcionalidades para manipulação de arquivos
  */
 
+// Variáveis para armazenar informações sobre o arquivo
+let originalAudioFile = null;
+let processedAudioFilePath = null;
+
 // Configurar evento de drag-and-drop para upload de arquivos
 function initFileUpload() {
     const fileInput = document.getElementById('audio-file');
@@ -113,4 +117,83 @@ function clearFile() {
         
         transcript.classList.remove('range-selection-active');
     }
+}
+
+// Atualizar a função de setup do player de áudio para usar o arquivo processado quando disponível
+function setupAudioPlayer() {
+    // ...existing code...
+    
+    // Adicionar código para armazenar o arquivo original
+    if (fileInput.files.length > 0) {
+        originalAudioFile = fileInput.files[0];
+        console.log(`Arquivo original armazenado: ${originalAudioFile.name}`);
+    }
+}
+
+// Função para obter o caminho do arquivo processado
+function getCurrentAudioFilePath() {
+    if (!processedAudioFilePath) return null;
+    
+    // Extrair apenas o nome do arquivo
+    const fileName = processedAudioFilePath.split(/[/\\]/).pop();
+    
+    // Usar o caminho correto para a pasta uploads
+    return `/uploads/${fileName}`;
+}
+
+// Atualizar com o caminho do arquivo processado quando receber a resposta da API
+function updateProcessedAudioPath(path) {
+    processedAudioFilePath = path;
+    console.log(`Caminho do arquivo processado atualizado: ${processedAudioFilePath}`);
+    
+    // Configurar o player imediatamente após atualizar o caminho
+    setupAudioPlayerWithProcessedFile();
+}
+
+// Configurar o player de áudio para usar o arquivo processado
+function setupAudioPlayerWithProcessedFile() {
+    if (!processedAudioFilePath) {
+        console.error("Caminho do arquivo processado não disponível");
+        return;
+    }
+    
+    console.log("Configurando player para arquivo processado:", processedAudioFilePath);
+    
+    // Obter o elemento de áudio
+    const audioPlayer = document.getElementById('audio-player');
+    if (!audioPlayer) {
+        console.error("Elemento de áudio não encontrado");
+        return;
+    }
+    
+    // Construir URL adequada para o navegador acessar o arquivo
+    const fileName = processedAudioFilePath.split(/[/\\]/).pop();
+    const audioUrl = `/uploads/${fileName}`;
+    console.log("URL final do áudio:", audioUrl);
+    
+    // Definir a fonte do áudio para a URL construída
+    audioPlayer.src = audioUrl;
+    
+    // Recarregar o áudio para aplicar a nova fonte
+    audioPlayer.load();
+    
+    // Garantir que os controles estejam habilitados
+    const playPauseBtn = document.getElementById('play-pause-btn');
+    const stopBtn = document.getElementById('stop-btn');
+    const restartBtn = document.getElementById('restart-btn');
+    const playbackSpeed = document.getElementById('playback-speed');
+    const timeline = document.getElementById('timeline');
+    
+    if (playPauseBtn) playPauseBtn.disabled = false;
+    if (stopBtn) stopBtn.disabled = false;
+    if (restartBtn) restartBtn.disabled = false;
+    if (playbackSpeed) playbackSpeed.disabled = false;
+    if (timeline) timeline.disabled = false;
+    
+    // Garantir que o player esteja visível
+    if (document.getElementById('audio-player-container')) {
+        document.getElementById('audio-player-container').style.display = 'block';
+    }
+    
+    console.log("Player de áudio configurado com arquivo processado");
 }
