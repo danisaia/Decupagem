@@ -57,6 +57,7 @@ function addCurrentSelectionToAssembly() {
     
     // Atualizar a interface
     renderAssemblyClips();
+    console.log('Lista de montagem renderizada, verifique se o botão de download está presente');
     
     // Exibir a seção de montagem se estiver oculta
     const assemblySection = document.getElementById('assembly-section');
@@ -94,7 +95,7 @@ function renderAssemblyClips() {
     const playAllPlayer = document.createElement('div');
     playAllPlayer.className = 'play-all-player';
     playAllPlayer.innerHTML = `
-        <h3>Reproduzir Todos os Trechos</h3>
+        <h3>Reproduzir Montagem</h3>
         <div class="play-all-controls">
             <button id="play-all-btn" class="player-btn">
                 <i class="play-icon">▶</i> Reproduzir tudo
@@ -104,6 +105,9 @@ function renderAssemblyClips() {
             </button>
             <button id="restart-all-btn" class="player-btn">
                 <i>⟲</i> Início
+            </button>
+            <button id="download-assembly-btn" class="player-btn download-btn">
+                <i>↓</i> Download MP3
             </button>
         </div>
         <div class="play-all-progress">
@@ -153,21 +157,29 @@ function createClipElement(clip, index) {
         <div class="clip-text">${clip.text}</div>
         
         <div class="clip-time-adjustments">
-            <div class="time-group">
+            <div class="time-group start-group">
                 <span class="time-label">Início:</span>
                 <div class="time-adjust-buttons">
                     <button class="time-adjust-btn" data-action="start-back" data-clip-id="${clip.id}">-0.1s</button>
                     <button class="time-adjust-btn fine" data-action="start-back-fine" data-clip-id="${clip.id}">-0.01s</button>
+                    <button class="time-adjust-btn ultra-fine" data-action="start-back-ultra-fine" data-clip-id="${clip.id}">-0.001s</button>
+                    <button class="time-adjust-btn preview-btn" data-action="preview-start" data-clip-id="${clip.id}">Prévia</button>
+                    <button class="time-adjust-btn ultra-fine" data-action="start-forward-ultra-fine" data-clip-id="${clip.id}">+0.001s</button>
                     <button class="time-adjust-btn fine" data-action="start-forward-fine" data-clip-id="${clip.id}">+0.01s</button>
                     <button class="time-adjust-btn" data-action="start-forward" data-clip-id="${clip.id}">+0.1s</button>
                 </div>
             </div>
             
-            <div class="time-group">
+            <div class="time-separator"></div>
+            
+            <div class="time-group end-group">
                 <span class="time-label">Fim:</span>
                 <div class="time-adjust-buttons">
                     <button class="time-adjust-btn" data-action="end-back" data-clip-id="${clip.id}">-0.1s</button>
                     <button class="time-adjust-btn fine" data-action="end-back-fine" data-clip-id="${clip.id}">-0.01s</button>
+                    <button class="time-adjust-btn ultra-fine" data-action="end-back-ultra-fine" data-clip-id="${clip.id}">-0.001s</button>
+                    <button class="time-adjust-btn preview-btn" data-action="preview-end" data-clip-id="${clip.id}">Prévia</button>
+                    <button class="time-adjust-btn ultra-fine" data-action="end-forward-ultra-fine" data-clip-id="${clip.id}">+0.001s</button>
                     <button class="time-adjust-btn fine" data-action="end-forward-fine" data-clip-id="${clip.id}">+0.01s</button>
                     <button class="time-adjust-btn" data-action="end-forward" data-clip-id="${clip.id}">+0.1s</button>
                 </div>
@@ -217,6 +229,16 @@ function addClipEventListeners(clipElement, clip) {
         btn.addEventListener('click', function() {
             const action = this.getAttribute('data-action');
             const clipId = this.getAttribute('data-clip-id');
+            
+            // Verificar se é um botão de prévia
+            if (action === 'preview-start') {
+                previewClipStart(clip);
+                return;
+            } else if (action === 'preview-end') {
+                previewClipEnd(clip);
+                return;
+            }
+            
             adjustClipTime(clipId, action);
         });
     });
@@ -272,25 +294,31 @@ function adjustClipTime(clipId, action) {
     let timeAdjustment = 0.1; // Default adjustment
     
     // Determine the precision level
-    if (action.includes('-fine')) {
+    if (action.includes('-ultra-fine')) {
+        timeAdjustment = 0.001; // Ultra fine adjustment
+    } else if (action.includes('-fine')) {
         timeAdjustment = 0.01; // Fine adjustment
     }
     
     switch(action) {
         case 'start-back':
         case 'start-back-fine':
+        case 'start-back-ultra-fine':
             clip.startTime = Math.max(0, clip.startTime - timeAdjustment);
             break;
         case 'start-forward':
         case 'start-forward-fine':
+        case 'start-forward-ultra-fine':
             clip.startTime = Math.min(clip.endTime - timeAdjustment, clip.startTime + timeAdjustment);
             break;
         case 'end-back':
         case 'end-back-fine':
+        case 'end-back-ultra-fine':
             clip.endTime = Math.max(clip.startTime + timeAdjustment, clip.endTime - timeAdjustment);
             break;
         case 'end-forward':
         case 'end-forward-fine':
+        case 'end-forward-ultra-fine':
             clip.endTime = Math.min(audioPlayer.duration, clip.endTime + timeAdjustment);
             break;
     }
@@ -458,6 +486,7 @@ function setupPlayAllListeners() {
     const playAllBtn = document.getElementById('play-all-btn');
     const stopAllBtn = document.getElementById('stop-all-btn');
     const restartAllBtn = document.getElementById('restart-all-btn');
+    const downloadAssemblyBtn = document.getElementById('download-assembly-btn');
     
     if (playAllBtn) {
         playAllBtn.addEventListener('click', togglePlayAll);
@@ -469,6 +498,13 @@ function setupPlayAllListeners() {
     
     if (restartAllBtn) {
         restartAllBtn.addEventListener('click', restartPlayAll);
+    }
+    
+    if (downloadAssemblyBtn) {
+        console.log('Botão de download encontrado e event listener adicionado');
+        downloadAssemblyBtn.addEventListener('click', downloadAssemblyAudio);
+    } else {
+        console.error('Botão de download não encontrado!');
     }
 }
 
@@ -638,8 +674,117 @@ function updatePlayAllProgress(clipIndex, currentTime) {
     }
 }
 
+// Função para baixar a montagem como MP3
+function downloadAssemblyAudio() {
+    if (assemblyClips.length === 0) {
+        alert("Não há trechos na montagem para baixar.");
+        return;
+    }
+    
+    showStatus("Preparando o download da montagem...", "info");
+    
+    // Criar um FormData para enviar ao servidor
+    const formData = new FormData();
+    formData.append('clips', JSON.stringify(assemblyClips));
+    
+    // Adicionar o caminho do arquivo de áudio, se disponível
+    if (typeof getCurrentAudioFilePath === 'function' && getCurrentAudioFilePath()) {
+        formData.append('audio_file_path', getCurrentAudioFilePath());
+        console.log("Enviando caminho do arquivo:", getCurrentAudioFilePath());
+    }
+    
+    console.log("Enviando clipes para o servidor:", JSON.stringify(assemblyClips));
+    
+    // Enviar pedido de exportação para o servidor com timeout mais longo
+    fetch(window.location.origin + '/api/export-assembly', {
+        method: 'POST',
+        body: formData,
+        timeout: 60000 // 60 segundos para processamentos mais longos
+    })
+    .then(response => {
+        if (!response.ok) {
+            console.error("Erro na resposta:", response.status, response.statusText);
+            throw new Error('Falha ao processar a montagem: ' + response.status);
+        }
+        return response.blob();
+    })
+    .then(blob => {
+        // Criar URL para o blob
+        const url = URL.createObjectURL(blob);
+        
+        // Criar link de download e clicar automaticamente
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'montagem_audio.mp3';
+        document.body.appendChild(a);
+        a.click();
+        
+        // Limpar
+        setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showStatus("Download da montagem concluído!", "success");
+        }, 100);
+    })
+    .catch(error => {
+        console.error('Erro ao exportar montagem:', error);
+        showStatus("Erro ao preparar o download: " + error.message, "error");
+    });
+}
+
 // Inicializar quando o DOM estiver pronto
 document.addEventListener('DOMContentLoaded', function() {
     // Inicializar montagem
     initAssembly();
 });
+
+function previewClipStart(clip) {
+    // Reproduzir os primeiros 1 segundo do trecho (era 2 segundos)
+    const previewEndTime = Math.min(clip.startTime + 1, clip.endTime);
+    
+    audioPlayer.currentTime = clip.startTime;
+    audioPlayer.play();
+    
+    // Configurar um temporizador para parar após 1 segundo
+    setTimeout(() => {
+        if (audioPlayer.currentTime >= previewEndTime) {
+            audioPlayer.pause();
+        }
+    }, 1000); // Reduzido de 2000ms
+    
+    // Monitorar a posição atual para parar no final da prévia
+    const timeUpdateHandler = function() {
+        if (audioPlayer.currentTime >= previewEndTime) {
+            audioPlayer.pause();
+            audioPlayer.removeEventListener('timeupdate', timeUpdateHandler);
+        }
+    };
+    
+    audioPlayer.addEventListener('timeupdate', timeUpdateHandler);
+}
+
+function previewClipEnd(clip) {
+    // Reproduzir os últimos 1 segundo do trecho (era 2 segundos)
+    const previewStartTime = Math.max(clip.endTime - 1, clip.startTime);
+    
+    audioPlayer.currentTime = previewStartTime;
+    audioPlayer.play();
+    
+    // Configurar um temporizador para parar no final do trecho
+    const duration = clip.endTime - previewStartTime;
+    setTimeout(() => {
+        if (audioPlayer.currentTime >= clip.endTime) {
+            audioPlayer.pause();
+        }
+    }, duration * 1000);
+    
+    // Monitorar a posição atual para parar no final do trecho
+    const timeUpdateHandler = function() {
+        if (audioPlayer.currentTime >= clip.endTime) {
+            audioPlayer.pause();
+            audioPlayer.removeEventListener('timeupdate', timeUpdateHandler);
+        }
+    };
+    
+    audioPlayer.addEventListener('timeupdate', timeUpdateHandler);
+}

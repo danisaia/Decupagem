@@ -587,8 +587,15 @@ footer {
 }
 
 /* Adicionar ao CSS */
-.selection-controls, .range-player, .download-btn {
+.selection-controls, .range-player {
     display: none;
+}
+
+/* Estilo específico para o botão de download */
+.download-btn {
+    background-color: #27ae60 !important;
+    margin-left: 10px;
+    display: inline-block !important; /* Garantir que o botão seja exibido */
 }
 
 #clear-selection-btn {
@@ -821,4 +828,56 @@ footer {
     height: 100%;
     background-color: #3498db;
     transition: width 0.3s ease;
+}
+
+/* Estilos para o separador de tempo e botão de prévia */
+.time-separator {
+    height: 1px;
+    background-color: #ddd;
+    margin: 8px 0;
+    width: 100%;
+}
+
+.time-group {
+    padding: 8px;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    margin-bottom: 5px;
+}
+
+.time-adjust-btn.preview-btn {
+    background-color: #9b59b6;
+    min-width: 60px;
+    font-weight: bold;
+}
+
+.time-adjust-btn.preview-btn:hover {
+    background-color: #8e44ad;
+}
+
+.time-adjust-btn.ultra-fine {
+    background-color: #1c638b;
+    font-size: 9px;
+    padding: 1px 2px;
+}
+
+.time-adjust-btn.ultra-fine:hover {
+    background-color: #164e6e;
+}
+
+.start-group {
+    border-left: 3px solid #3498db;
+}
+
+.end-group {
+    border-left: 3px solid #e74c3c;
+}
+
+.download-btn {
+    background-color: #27ae60 !important;
+    margin-left: 10px;
+}
+
+.download-btn:hover {
+    background-color: #219653 !important;
 }
